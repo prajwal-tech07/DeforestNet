@@ -91,3 +91,10 @@ BATCH_SIZE = 16
 NUM_WORKERS = 0  # Use 0 on Windows; increase on Linux
 PIN_MEMORY = True
 IN_CHANNELS = 11  # Total feature bands (6 sensor + 5 derived indices)
+
+# ============================================================
+# MODEL PARAMETERS
+# ============================================================
+MODEL_NAME = "UNetResNet34"
+DROPOUT_P = 0.2  # Dropout before final classification head
+ENCODER_NAME = "resnet34"
