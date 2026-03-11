@@ -3,6 +3,19 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Large data files - too big for GitHub
+outputs/preprocessed/train/
+outputs/preprocessed/val/
+outputs/preprocessed/test/
+*.npz
+*.npy
+
+# Dataset (stored locally, not in repo)
+dataset/
+
+# Virtual environment
+.venv/
+
 # C extensions
 *.so
 
