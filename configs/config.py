@@ -83,3 +83,11 @@ RANDOM_SEED = 42
 # For Sentinel-2: NIR = Band 4 (B8), Red = Band 3 (B4)
 NDVI_NIR_BAND_INDEX = 3  # 0-indexed: B8_NIR
 NDVI_RED_BAND_INDEX = 2  # 0-indexed: B4_Red
+
+# ============================================================
+# DATALOADER PARAMETERS
+# ============================================================
+BATCH_SIZE = 16
+NUM_WORKERS = 0  # Use 0 on Windows; increase on Linux
+PIN_MEMORY = True
+IN_CHANNELS = 11  # Total feature bands (6 sensor + 5 derived indices)
