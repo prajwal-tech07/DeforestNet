@@ -98,3 +98,22 @@ IN_CHANNELS = 11  # Total feature bands (6 sensor + 5 derived indices)
 MODEL_NAME = "UNetResNet34"
 DROPOUT_P = 0.2  # Dropout before final classification head
 ENCODER_NAME = "resnet34"
+
+# ============================================================
+# LOSS FUNCTION PARAMETERS
+# ============================================================
+LOSS_TYPE = "combined"  # Options: "ce", "dice", "focal", "combined"
+# Class weights: [non-deforestation, deforestation]
+# Derived from training set distribution (73.1% / 26.9%)
+CLASS_WEIGHTS = [0.684, 1.857]
+# Combined loss component weights
+DICE_LOSS_WEIGHT = 0.5
+CE_LOSS_WEIGHT = 0.5
+FOCAL_LOSS_WEIGHT = 0.0  # Set > 0 to enable focal loss component
+FOCAL_GAMMA = 2.0  # Focusing parameter for focal loss
+DICE_SMOOTH = 1.0  # Smoothing factor for dice loss
+
+# ============================================================
+# METRIC PARAMETERS
+# ============================================================
+CLASS_NAMES = ["Non-Deforest", "Deforest"]
