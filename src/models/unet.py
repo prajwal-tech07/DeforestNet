@@ -130,8 +130,8 @@ class DecoderBlock(nn.Module):
     def forward(self, x, skip):
         x = self.upsample(x)
         
-        # Handle size mismatches from odd spatial dimensions
-        if x.shape != skip.shape:
+        # Handle spatial size mismatches from odd dimensions
+        if x.shape[2:] != skip.shape[2:]:
             x = F.interpolate(x, size=skip.shape[2:], mode='bilinear',
                               align_corners=True)
         
@@ -184,6 +184,21 @@ class UNetResNet34(nn.Module):
         
         # Classification head
         self.final_conv = nn.Conv2d(32, num_classes, kernel_size=1)
+        
+        # Initialize weights (Kaiming Normal for Conv, standard for BN)
+        self._initialize_weights()
+    
+    def _initialize_weights(self):
+        """Apply Kaiming Normal init (He et al.) for stable convergence."""
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out',
+                                       nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.ones_(m.weight)
+                nn.init.zeros_(m.bias)
     
     def forward(self, x):
         """
