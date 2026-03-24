@@ -27,11 +27,13 @@ AI_PROJECT/
 ## Setup on a New Machine
 
 ### 1. Clone the repo
+
 ```bash
 git clone https://github.com/prajwal-tech07/DeforestNet.git
 ```
 
 ### 2. Create a parent folder and place the repo inside
+
 ```
 mkdir AI_PROJECT
 mv DeforestNet AI_PROJECT/
@@ -39,7 +41,9 @@ cd AI_PROJECT
 ```
 
 ### 3. Download the dataset
+
 Download the satellite imagery dataset and extract it so the folder structure looks like:
+
 ```
 AI_PROJECT/
 ├── dataset/
@@ -56,6 +60,7 @@ AI_PROJECT/
 ```
 
 ### 4. Install dependencies
+
 ```bash
 cd DeforestNet
 python -m venv .venv
@@ -68,21 +73,23 @@ pip install -r requirements.txt
 ```
 
 ### 5. Run preprocessing
+
 ```bash
 python src/preprocessing/pipeline.py
 ```
+
 This reads all `.tif` files, applies noise removal, normalization, feature extraction, and creates train/val/test splits as compressed `.npz` files in `outputs/preprocessed/`.
 
 ## Preprocessing Pipeline
 
-| Step | Description |
-|------|-------------|
-| 1. Read GeoTIFF | Loads Sentinel-1 (VV, VH), Sentinel-2 (B2, B3, B4, B8), masks |
-| 2. Noise Removal | Lee speckle filter (SAR), Gaussian smoothing (optical) |
-| 3. Normalization | Percentile-based scaling to [0, 1] with global statistics |
-| 4. Feature Extraction | NDVI, EVI, SAVI, VV/VH ratio, RVI → 11 feature bands |
-| 5. Patch Extraction | 256×256 non-overlapping patches, class balancing |
-| 6. Train/Val/Test | 70/15/15 split, saved as compressed `.npz` chunks |
+| Step                  | Description                                                   |
+| --------------------- | ------------------------------------------------------------- |
+| 1. Read GeoTIFF       | Loads Sentinel-1 (VV, VH), Sentinel-2 (B2, B3, B4, B8), masks |
+| 2. Noise Removal      | Lee speckle filter (SAR), Gaussian smoothing (optical)        |
+| 3. Normalization      | Percentile-based scaling to [0, 1] with global statistics     |
+| 4. Feature Extraction | NDVI, EVI, SAVI, VV/VH ratio, RVI → 11 feature bands          |
+| 5. Patch Extraction   | 256×256 non-overlapping patches, class balancing              |
+| 6. Train/Val/Test     | 70/15/15 split, saved as compressed `.npz` chunks             |
 
 ## Dataset Details
 
