@@ -4,7 +4,7 @@
 
 **Project:** Deforestation Detection & Alert System (DeforestNet)  
 **Week:** Week 1 (18 March – 25 March 2026)  
-**Team:** [Add your team member names here]
+**Team:** EcoVision
 
 ---
 
