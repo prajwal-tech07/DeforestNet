@@ -78,15 +78,12 @@ def main():
     parser.add_argument("--port", type=int, default=API_CONFIG.get("port", 5000),
                         help="Port to bind to")
     parser.add_argument("--debug", action="store_true",
-                        default=API_CONFIG.get("debug", True),
-                        help="Enable debug mode")
-    parser.add_argument("--no-debug", action="store_true",
-                        help="Disable debug mode")
+                        help="Enable debug mode (do not use in production)")
     parser.add_argument("--no-seed", action="store_true",
                         help="Skip demo data seeding")
 
     args = parser.parse_args()
-    debug = args.debug and not args.no_debug
+    debug = args.debug
 
     app = create_app()
 

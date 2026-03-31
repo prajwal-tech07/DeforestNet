@@ -9,9 +9,12 @@ data/
 *.npy
 database/
 
-# Model checkpoints
+# Model checkpoints (too large for Git)
 models/checkpoints/*.pth
 models/checkpoints/*.pt
+models/checkpoints/**/*.pth
+models/checkpoints/**/*.pt
+models/checkpoints/**/history.json
 
 # Log files
 logs/

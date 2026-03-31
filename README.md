@@ -312,6 +312,37 @@ Full analysis: [`docs/MARKET_AND_COMPETITOR_ANALYSIS.md`](docs/MARKET_AND_COMPET
 - **EUDR compliance ready** -- EU regulation mandates deforestation-free sourcing proof for 400,000+ operators by Dec 2026
 - **Explainable AI** -- GradCAM visualizations build trust with regulators and auditors
 
+## Model Benchmark Results
+
+Trained and evaluated with `python benchmark.py`:
+
+| Metric | Score |
+|--------|-------|
+| **Overall Accuracy** | **99.58%** |
+| **Mean IoU** | **97.08%** |
+| **Mean Dice** | **98.49%** |
+| **Mean F1** | **98.49%** |
+
+### Performance Visualizations
+
+| Chart | Description |
+|-------|-------------|
+| ![Training Curves](outputs/benchmark/training_curves.png) | Loss, accuracy, IoU across 10 epochs with LR scheduling |
+| ![Confusion Matrix](outputs/benchmark/confusion_matrix.png) | Normalized confusion matrix + per-class accuracy breakdown |
+| ![Per-Class Metrics](outputs/benchmark/per_class_metrics.png) | IoU, Dice, Precision, Recall, F1 per deforestation class |
+| ![Band Importance](outputs/benchmark/band_importance.png) | Gradient-based attribution showing all 11 bands contribute |
+
+Full report: [`docs/BENCHMARK_REPORT.md`](docs/BENCHMARK_REPORT.md)
+
+## DevOps & Production Readiness
+
+| Feature | File |
+|---------|------|
+| Docker | `Dockerfile` -- `docker build -t deforestnet .` |
+| CI/CD | `.github/workflows/ci.yml` -- Tests, lint, Docker build on push |
+| Security | Debug mode off by default, CORS restricted |
+| Audit | [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md) -- Full gap analysis |
+
 ## License
 
 This project is open-source. See [LICENSE](LICENSE) for details.
