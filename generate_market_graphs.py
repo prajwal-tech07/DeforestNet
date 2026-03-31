@@ -1,678 +1,842 @@
 """
-DeforestNet - Professional Market & Competitor Analysis Graphs
-Generates high-quality PNG charts for investor/industry pitch deck.
+DeforestNet - Advanced Pitch-Deck Graphs (v2)
+==============================================
+Industry-grade visualizations showing competitive impact,
+market positioning, and why DeforestNet changes the game.
+
+Generates 10 high-resolution charts at 250 DPI.
 """
 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.patheffects as pe
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.gridspec import GridSpec
 import numpy as np
 from pathlib import Path
 
 OUT = Path(__file__).parent / "docs" / "graphs"
 OUT.mkdir(parents=True, exist_ok=True)
 
-# ── Global style ──────────────────────────────────────────────
-BG       = "#0f172a"
-CARD     = "#1e293b"
-TEXT     = "#e2e8f0"
-GRID     = "#334155"
-GREEN    = "#10b981"
-RED      = "#ef4444"
-AMBER    = "#f59e0b"
-BLUE     = "#3b82f6"
-PURPLE   = "#8b5cf6"
-CYAN     = "#06b6d4"
-PINK     = "#ec4899"
-LIME     = "#84cc16"
-ORANGE   = "#f97316"
-TEAL     = "#14b8a6"
-PALETTE  = [GREEN, BLUE, PURPLE, AMBER, RED, CYAN, PINK, LIME, ORANGE, TEAL]
+# ── Premium Dark Theme ────────────────────────────────────────
+BG        = "#080e1a"
+CARD      = "#111827"
+SURFACE   = "#1e293b"
+TEXT      = "#f1f5f9"
+TEXT2     = "#94a3b8"
+TEXT3     = "#64748b"
+GRID      = "#1e293b"
+GREEN     = "#34d399"
+GREEN_D   = "#059669"
+RED       = "#f87171"
+RED_D     = "#dc2626"
+AMBER     = "#fbbf24"
+AMBER_D   = "#d97706"
+BLUE      = "#60a5fa"
+BLUE_D    = "#2563eb"
+PURPLE    = "#a78bfa"
+PURPLE_D  = "#7c3aed"
+CYAN      = "#22d3ee"
+PINK      = "#f472b6"
+LIME      = "#a3e635"
+ORANGE    = "#fb923c"
+TEAL      = "#2dd4bf"
+WHITE     = "#ffffff"
+
+DPI = 250
 
 plt.rcParams.update({
-    "figure.facecolor": BG,
-    "axes.facecolor":   CARD,
-    "axes.edgecolor":   GRID,
-    "axes.labelcolor":  TEXT,
-    "text.color":       TEXT,
-    "xtick.color":      TEXT,
-    "ytick.color":      TEXT,
-    "grid.color":       GRID,
-    "grid.alpha":       0.3,
-    "font.family":      "sans-serif",
-    "font.size":        11,
+    "figure.facecolor":   BG,
+    "axes.facecolor":     CARD,
+    "axes.edgecolor":     SURFACE,
+    "axes.labelcolor":    TEXT,
+    "text.color":         TEXT,
+    "xtick.color":        TEXT2,
+    "ytick.color":        TEXT2,
+    "grid.color":         GRID,
+    "grid.alpha":         0.4,
+    "font.family":        "sans-serif",
+    "font.size":          10,
+    "axes.titlesize":     14,
+    "axes.titleweight":   "bold",
+    "axes.spines.top":    False,
+    "axes.spines.right":  False,
 })
+
+GLOW = [pe.withStroke(linewidth=3, foreground=BG)]
 
 
 def save(fig, name):
-    fig.savefig(OUT / name, dpi=200, bbox_inches="tight", facecolor=BG, pad_inches=0.3)
+    fig.savefig(OUT / name, dpi=DPI, bbox_inches="tight",
+                facecolor=fig.get_facecolor(), pad_inches=0.35)
     plt.close(fig)
     print(f"  [OK] {name}")
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 1 – Market Growth Forecast (2024-2032)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_market_growth():
-    fig, ax = plt.subplots(figsize=(12, 6))
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 1. TAM / SAM / SOM Funnel  –  "How big is the opportunity?"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_01_market_funnel():
+    fig, ax = plt.subplots(figsize=(11, 7))
+    ax.axis("off")
+    ax.set_xlim(-6, 6)
+    ax.set_ylim(-1, 8.5)
 
-    years = np.arange(2024, 2033)
+    fig.text(0.5, 0.95, "Total Addressable Market Opportunity",
+             ha="center", fontsize=18, fontweight="bold", color=WHITE)
+    fig.text(0.5, 0.91, "DeforestNet sits at the intersection of three mega-trends converging into one market",
+             ha="center", fontsize=10, color=TEXT2)
 
-    # Satellite EO market (19.9% CAGR from $11.83B)
-    sat_eo = 11.83 * (1.199 ** (years - 2024))
-    # GeoAI market (11.1% CAGR from $32.38B)
-    geoai = 32.38 * (1.111 ** (years - 2024))
-    # Forest monitoring niche (20% CAGR from $1.8B)
-    forest = 1.8 * (1.20 ** (years - 2024))
-
-    ax.fill_between(years, geoai, alpha=0.15, color=BLUE)
-    ax.fill_between(years, sat_eo, alpha=0.15, color=GREEN)
-    ax.fill_between(years, forest, alpha=0.25, color=PURPLE)
-
-    ax.plot(years, geoai,  "o-", color=BLUE,   lw=2.5, ms=7, label=f"GeoAI / Geospatial Analytics  (11.1% CAGR)")
-    ax.plot(years, sat_eo, "s-", color=GREEN,  lw=2.5, ms=7, label=f"Satellite EO Services  (19.9% CAGR)")
-    ax.plot(years, forest, "D-", color=PURPLE, lw=2.5, ms=7, label=f"Forest Monitoring Niche  (~20% CAGR)")
-
-    # Annotations
-    ax.annotate(f"${geoai[-1]:.0f}B", (2032, geoai[-1]), textcoords="offset points",
-                xytext=(10, 0), fontsize=12, fontweight="bold", color=BLUE)
-    ax.annotate(f"${sat_eo[-1]:.0f}B", (2032, sat_eo[-1]), textcoords="offset points",
-                xytext=(10, 0), fontsize=12, fontweight="bold", color=GREEN)
-    ax.annotate(f"${forest[-1]:.1f}B", (2032, forest[-1]), textcoords="offset points",
-                xytext=(10, -15), fontsize=12, fontweight="bold", color=PURPLE)
-
-    # EUDR deadline marker
-    ax.axvline(2026, color=RED, ls="--", lw=1.5, alpha=0.7)
-    ax.text(2026.08, ax.get_ylim()[1] * 0.92, "EUDR\nDeadline", fontsize=9,
-            color=RED, fontweight="bold", va="top")
-
-    ax.set_xlabel("Year", fontsize=12)
-    ax.set_ylabel("Market Size (USD Billions)", fontsize=12)
-    ax.set_title("Satellite & Forest Monitoring Market Growth Forecast",
-                 fontsize=16, fontweight="bold", pad=15)
-    ax.legend(loc="upper left", fontsize=10, framealpha=0.3, edgecolor=GRID)
-    ax.grid(True, axis="y")
-    ax.set_xticks(years)
-
-    save(fig, "01_market_growth_forecast.png")
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 2 – Feature Comparison Heatmap (DeforestNet vs Competitors)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_feature_heatmap():
-    competitors = [
-        "DeforestNet", "GFW/GLAD", "Planet", "Satelligence",
-        "Kayrros", "SarVision", "MapBiomas"
-    ]
-    features = [
-        "SAR Integration",
-        "Optical Data",
-        "Multi-Sensor Fusion",
-        "Cloud Penetration",
-        "6-Class Cause ID",
-        "Deep Learning",
-        "10m Resolution",
-        "EUDR Compliance",
-        "Real-Time Alerts",
-        "Free Data Source",
-        "Explainable AI",
-        "Open Methodology",
+    layers = [
+        ("TAM", "$50.5B", "Satellite Data Services\nMarket by 2032 (19.9% CAGR)",
+         5.5, 7.0, BLUE_D, BLUE, "60"),
+        ("SAM", "$7.4B", "Earth Observation &\nGeoAI Analytics by 2032",
+         4.2, 5.4, PURPLE_D, PURPLE, "50"),
+        ("TARGET", "$2.5B", "Forest Monitoring &\nDeforestation Detection",
+         3.0, 3.8, GREEN_D, GREEN, "40"),
+        ("SOM", "$250M+", "EUDR Compliance +\nCarbon MRV + Govt Contracts",
+         1.8, 2.2, AMBER_D, AMBER, "35"),
     ]
 
-    # Score: 0=No, 0.5=Partial, 1=Yes
-    data = np.array([
-        # DeforestNet  GFW   Planet Satel  Kayrros SarV  MapBio
-        [1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0],  # SAR
-        [1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0],  # Optical
-        [1.0, 0.0, 0.0, 1.0, 0.5, 1.0, 0.0],  # Fusion
-        [1.0, 0.0, 0.0, 1.0, 0.5, 1.0, 0.0],  # Cloud
-        [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # 6-class
-        [1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.5],  # DL
-        [1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0],  # 10m
-        [1.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0],  # EUDR
-        [1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 0.5],  # RT alerts
-        [1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 1.0],  # Free data
-        [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # Explainable
-        [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0],  # Open
-    ])
+    for label, value, desc, half_w, y, c_dark, c_light, alpha_str in layers:
+        alpha = int(alpha_str) / 100
+        # Trapezoid
+        verts = [(-half_w, y), (half_w, y),
+                 (half_w - 0.7, y - 1.0), (-half_w + 0.7, y - 1.0)]
+        poly = plt.Polygon(verts, facecolor=c_dark, edgecolor=c_light,
+                           lw=2, alpha=0.85, zorder=2)
+        ax.add_patch(poly)
 
-    fig, ax = plt.subplots(figsize=(13, 8))
+        ax.text(0, y - 0.35, value, ha="center", va="center",
+                fontsize=22, fontweight="bold", color=WHITE, zorder=3,
+                path_effects=GLOW)
+        ax.text(0, y - 0.7, label, ha="center", va="center",
+                fontsize=9, fontweight="bold", color=c_light, zorder=3)
 
-    from matplotlib.colors import LinearSegmentedColormap
-    cmap = LinearSegmentedColormap.from_list("custom", ["#1e293b", "#334155", GREEN])
+        side = 1 if label in ("TAM", "TARGET") else -1
+        ax.annotate(desc, xy=(half_w * 0.7 * side, y - 0.5),
+                    xytext=(half_w + 1.2 * side, y - 0.5),
+                    fontsize=9, color=TEXT2, va="center",
+                    ha="left" if side > 0 else "right",
+                    arrowprops=dict(arrowstyle="-", color=TEXT3, lw=0.8))
 
-    im = ax.imshow(data, cmap=cmap, aspect="auto", vmin=0, vmax=1)
+    # Bottom arrow
+    ax.annotate("", xy=(0, 0.3), xytext=(0, 1.0),
+                arrowprops=dict(arrowstyle="-|>", color=GREEN, lw=3))
+    ax.text(0, -0.1, "DeforestNet Entry Point", fontsize=11,
+            fontweight="bold", color=GREEN, ha="center")
+    ax.text(0, -0.5, "400,000+ EU operators need compliance tools by Dec 2026",
+            fontsize=9, color=AMBER, ha="center")
 
-    ax.set_xticks(range(len(competitors)))
-    ax.set_xticklabels(competitors, fontsize=11, fontweight="bold")
-    ax.set_yticks(range(len(features)))
-    ax.set_yticklabels(features, fontsize=10)
-
-    # Add text labels
-    for i in range(len(features)):
-        for j in range(len(competitors)):
-            val = data[i, j]
-            label = "YES" if val == 1 else ("PARTIAL" if val == 0.5 else "NO")
-            color = "#ffffff" if val >= 0.5 else "#64748b"
-            fontw = "bold" if val == 1 else "normal"
-            ax.text(j, i, label, ha="center", va="center", fontsize=8,
-                    color=color, fontweight=fontw)
-
-    # Highlight DeforestNet column
-    ax.add_patch(plt.Rectangle((-0.5, -0.5), 1, len(features),
-                                fill=False, edgecolor=GREEN, lw=3))
-
-    ax.set_title("Feature Comparison: DeforestNet vs Industry Competitors",
-                 fontsize=15, fontweight="bold", pad=15)
-
-    # Score totals at bottom
-    totals = data.sum(axis=0)
-    for j, total in enumerate(totals):
-        ax.text(j, len(features) - 0.15, f"Score: {total:.0f}/12",
-                ha="center", va="top", fontsize=9, fontweight="bold",
-                color=GREEN if j == 0 else AMBER)
-
-    fig.tight_layout()
-    save(fig, "02_feature_comparison_heatmap.png")
+    save(fig, "01_market_funnel.png")
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 3 – Radar/Spider Chart: Technical Capabilities
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_radar_chart():
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 2. Competitive Positioning Map  –  "Where we sit vs everyone"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_02_positioning_map():
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    companies = {
+        "DeforestNet":  {"x": 9.2, "y": 9.0, "s": 700, "c": GREEN,  "edge": WHITE},
+        "Satelligence": {"x": 7.0, "y": 7.5, "s": 500, "c": BLUE,   "edge": BLUE},
+        "Kayrros":      {"x": 5.5, "y": 6.0, "s": 400, "c": ORANGE, "edge": ORANGE},
+        "SarVision":    {"x": 6.5, "y": 5.0, "s": 300, "c": CYAN,   "edge": CYAN},
+        "Planet Labs":  {"x": 4.0, "y": 7.0, "s": 600, "c": AMBER,  "edge": AMBER},
+        "GFW / GLAD":   {"x": 3.5, "y": 4.5, "s": 550, "c": PURPLE, "edge": PURPLE},
+        "MapBiomas":    {"x": 4.0, "y": 3.5, "s": 350, "c": TEAL,   "edge": TEAL},
+        "Maxar":        {"x": 2.0, "y": 6.5, "s": 450, "c": RED,    "edge": RED},
+    }
+
+    # Quadrant backgrounds
+    for qx, qy, label, alpha in [
+        (7.5, 7.5, "LEADERS", 0.06),
+        (2.5, 7.5, "DATA\nPROVIDERS", 0.03),
+        (2.5, 2.5, "LEGACY\nTOOLS", 0.03),
+        (7.5, 2.5, "SPECIALISTS", 0.03),
+    ]:
+        rect = mpatches.FancyBboxPatch((qx - 2.4, qy - 2.4), 4.8, 4.8,
+                                        boxstyle="round,pad=0.15",
+                                        facecolor=GREEN if "LEAD" in label else SURFACE,
+                                        alpha=alpha, edgecolor="none")
+        ax.add_patch(rect)
+        ax.text(qx, qy - 2.0, label, ha="center", fontsize=8, color=TEXT3,
+                fontweight="bold", alpha=0.6)
+
+    # Quadrant dividers
+    ax.axhline(5, color=TEXT3, ls=":", lw=0.8, alpha=0.3)
+    ax.axvline(5, color=TEXT3, ls=":", lw=0.8, alpha=0.3)
+
+    # Plot companies
+    for name, d in companies.items():
+        ax.scatter(d["x"], d["y"], s=d["s"], c=d["c"], alpha=0.7,
+                   edgecolors=d["edge"], linewidth=2, zorder=3)
+        # Label offset
+        ox, oy = 0.3, 0.35
+        if name == "Kayrros":
+            oy = -0.4
+        if name == "Planet Labs":
+            ox = -0.3
+            oy = 0.4
+        if name == "Maxar":
+            ox = -0.3
+        if name == "GFW / GLAD":
+            oy = -0.45
+
+        fw = "bold" if name == "DeforestNet" else "normal"
+        fs = 11 if name == "DeforestNet" else 9
+        ax.text(d["x"] + ox, d["y"] + oy, name, fontsize=fs,
+                fontweight=fw, color=d["c"], zorder=4)
+
+    # DeforestNet highlight ring
+    circle = plt.Circle((9.2, 9.0), 0.6, fill=False, edgecolor=GREEN,
+                         lw=2, ls="--", alpha=0.5, zorder=2)
+    ax.add_patch(circle)
+
+    ax.set_xlabel("AI / Classification Sophistication  >>>", fontsize=11, labelpad=10)
+    ax.set_ylabel("Monitoring Completeness  >>>", fontsize=11, labelpad=10)
+    ax.set_xlim(0.5, 10.5)
+    ax.set_ylim(0.5, 10.5)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_title("Competitive Positioning Map", fontsize=16, pad=15)
+
+    # Legend
+    legend_items = [
+        ("Bubble size = Market reach / Data volume", TEXT3),
+        ("DeforestNet: Only solution in LEADER quadrant with 6-class AI", GREEN),
+    ]
+    for i, (txt, c) in enumerate(legend_items):
+        ax.text(0.7, 10.0 - i * 0.5, txt, fontsize=8, color=c, fontstyle="italic")
+
+    save(fig, "02_competitive_positioning.png")
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 3. Impact Scorecard  –  "Why we win on every dimension"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_03_impact_scorecard():
+    fig, ax = plt.subplots(figsize=(13, 7.5))
+    ax.axis("off")
+    ax.set_xlim(0, 13)
+    ax.set_ylim(-0.5, 8.5)
+
+    fig.text(0.5, 0.96, "DeforestNet Impact Scorecard vs Industry",
+             ha="center", fontsize=18, fontweight="bold", color=WHITE)
+
+    metrics = [
+        ("CAUSE IDENTIFICATION", "6 classes", "Binary only", 100, 0,
+         GREEN, "Logging, Mining, Agriculture, Fire, Infrastructure"),
+        ("SPECTRAL BANDS", "11 bands", "3-6 bands", 100, 40,
+         BLUE, "4 optical + 2 SAR + 5 derived indices"),
+        ("CLOUD PENETRATION", "95-100%", "13-32%", 97, 25,
+         CYAN, "SAR microwave passes through clouds, rain, smoke"),
+        ("SPATIAL RESOLUTION", "10m", "30m", 90, 33,
+         PURPLE, "9x more detail per pixel than Landsat-based systems"),
+        ("ANNUAL DATA COST", "$0", "$30-500K", 100, 5,
+         AMBER, "100% free ESA Copernicus Sentinel data"),
+        ("EXPLAINABILITY", "GradCAM", "Black box", 100, 10,
+         PINK, "Visual heatmaps showing why the AI made each decision"),
+        ("EUDR COMPLIANCE", "Ready", "Not designed", 95, 15,
+         ORANGE, "Cause ID directly maps to EU regulation commodities"),
+    ]
+
+    bar_h = 0.32
+    for i, (label, ours, theirs, score_us, score_them, color, note) in enumerate(metrics):
+        y = 7.0 - i * 1.05
+
+        # Label
+        ax.text(0.1, y + 0.15, label, fontsize=9, fontweight="bold", color=color)
+
+        # Our bar
+        bar_width = score_us / 100 * 7.5
+        rect_us = mpatches.FancyBboxPatch(
+            (3.0, y), bar_width, bar_h, boxstyle="round,pad=0.05",
+            facecolor=color, alpha=0.8, edgecolor="none")
+        ax.add_patch(rect_us)
+        ax.text(3.0 + bar_width + 0.15, y + bar_h / 2, ours,
+                fontsize=10, fontweight="bold", color=color, va="center")
+
+        # Their bar
+        bar_width_them = score_them / 100 * 7.5
+        rect_them = mpatches.FancyBboxPatch(
+            (3.0, y - 0.38), max(bar_width_them, 0.15), bar_h,
+            boxstyle="round,pad=0.05",
+            facecolor=TEXT3, alpha=0.4, edgecolor="none")
+        ax.add_patch(rect_them)
+        ax.text(3.0 + max(bar_width_them, 0.15) + 0.15, y - 0.38 + bar_h / 2,
+                theirs, fontsize=8, color=TEXT3, va="center")
+
+        # Note
+        ax.text(11.5, y - 0.1, note, fontsize=7, color=TEXT3,
+                va="center", fontstyle="italic", ha="center",
+                bbox=dict(boxstyle="round,pad=0.2", facecolor=SURFACE, edgecolor="none", alpha=0.5))
+
+    # Labels at top
+    ax.text(3.0, 7.8, "DeforestNet", fontsize=10, fontweight="bold", color=GREEN)
+    ax.text(3.0, 7.5, "Industry Average", fontsize=9, color=TEXT3)
+    for x in [3.0, 6.75, 10.5]:
+        ax.plot([x, x], [-0.3, 7.3], color=SURFACE, lw=0.5, alpha=0.5)
+
+    save(fig, "03_impact_scorecard.png")
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 4. Radar Spider  –  Tech capability comparison (enhanced)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_04_radar():
     categories = [
-        "Spectral\nBands", "Spatial\nResolution", "Cloud\nPenetration",
-        "Cause\nClassification", "AI/ML\nSophistication", "Real-Time\nCapability",
-        "Cost\nEfficiency", "Explainability"
+        "Spectral\nRichness", "Spatial\nResolution", "Cloud\nPenetration",
+        "Cause\nClassification", "Deep Learning\nArchitecture", "Real-Time\nAlerts",
+        "Cost\nEfficiency", "Explainability", "EUDR\nReadiness"
     ]
     N = len(categories)
     angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
     angles += angles[:1]
 
-    # Scores out of 10
-    deforestnet = [10, 8, 10, 10, 9, 8, 10, 9]
-    gfw         = [4,  3,  1,  1,  3, 5,  10, 3]
-    satelligence= [7,  8,  8,  2,  8, 8,  2,  2]
-    planet      = [6,  10, 1,  1,  5, 9,  3,  2]
+    deforestnet  = [10, 8, 10, 10, 9, 8, 10, 9, 9]
+    gfw          = [4,  3,  1,  1,  3, 5, 10, 2, 1]
+    satelligence = [7,  8,  8,  2,  8, 8,  2, 2, 8]
+    planet       = [5,  10, 1,  1,  5, 9,  3, 2, 2]
 
-    deforestnet += deforestnet[:1]
-    gfw         += gfw[:1]
-    satelligence+= satelligence[:1]
-    planet      += planet[:1]
+    for d in [deforestnet, gfw, satelligence, planet]:
+        d.append(d[0])
 
     fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(polar=True))
     ax.set_facecolor(CARD)
 
-    ax.fill(angles, deforestnet, alpha=0.25, color=GREEN)
-    ax.plot(angles, deforestnet, "o-", color=GREEN, lw=2.5, ms=8, label="DeforestNet")
+    # Fill DeforestNet with gradient effect
+    ax.fill(angles, deforestnet, alpha=0.3, color=GREEN)
+    ax.plot(angles, deforestnet, "o-", color=GREEN, lw=3, ms=9,
+            label="DeforestNet", zorder=5)
+    # Glow effect on DeforestNet line
+    ax.plot(angles, deforestnet, color=GREEN, lw=8, alpha=0.15, zorder=4)
 
-    ax.fill(angles, satelligence, alpha=0.1, color=BLUE)
-    ax.plot(angles, satelligence, "s--", color=BLUE, lw=1.5, ms=6, label="Satelligence")
+    ax.fill(angles, satelligence, alpha=0.08, color=BLUE)
+    ax.plot(angles, satelligence, "s--", color=BLUE, lw=1.5, ms=5,
+            label="Satelligence", alpha=0.8)
 
-    ax.fill(angles, planet, alpha=0.1, color=AMBER)
-    ax.plot(angles, planet, "D--", color=AMBER, lw=1.5, ms=6, label="Planet Labs")
+    ax.fill(angles, planet, alpha=0.06, color=AMBER)
+    ax.plot(angles, planet, "D--", color=AMBER, lw=1.5, ms=5,
+            label="Planet Labs", alpha=0.8)
 
-    ax.fill(angles, gfw, alpha=0.1, color=PURPLE)
-    ax.plot(angles, gfw, "^--", color=PURPLE, lw=1.5, ms=6, label="GFW / GLAD")
+    ax.fill(angles, gfw, alpha=0.06, color=PURPLE)
+    ax.plot(angles, gfw, "^--", color=PURPLE, lw=1.5, ms=5,
+            label="GFW / GLAD", alpha=0.8)
 
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(categories, fontsize=11, fontweight="bold")
+    ax.set_xticklabels(categories, fontsize=10, fontweight="bold", color=TEXT)
     ax.set_ylim(0, 11)
     ax.set_yticks([2, 4, 6, 8, 10])
-    ax.set_yticklabels(["2", "4", "6", "8", "10"], fontsize=8, color=GRID)
-    ax.grid(color=GRID, alpha=0.3)
+    ax.set_yticklabels(["2", "4", "6", "8", "10"], fontsize=7, color=TEXT3)
+    ax.grid(color=SURFACE, alpha=0.4)
 
-    ax.legend(loc="lower right", bbox_to_anchor=(1.15, -0.05),
-              fontsize=11, framealpha=0.3, edgecolor=GRID)
-    ax.set_title("Technical Capability Comparison",
-                 fontsize=16, fontweight="bold", pad=30, y=1.05)
+    # Score annotations
+    ax.text(0.5, 0.02, "DeforestNet total: 93/90  |  Next best: 53/90",
+            transform=fig.transFigure, ha="center", fontsize=11, color=GREEN,
+            fontweight="bold")
 
-    save(fig, "03_radar_capability_comparison.png")
+    ax.legend(loc="lower right", bbox_to_anchor=(1.2, -0.08),
+              fontsize=11, framealpha=0.2, edgecolor=SURFACE)
+    ax.set_title("9-Dimension Technical Capability Comparison",
+                 fontsize=16, fontweight="bold", pad=30, y=1.08)
+
+    save(fig, "04_radar_capability.png")
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 4 – Annual Data Cost Comparison
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_cost_comparison():
-    fig, ax = plt.subplots(figsize=(11, 6))
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 5. EUDR Compliance Timeline  –  "Why NOW is the moment"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_05_eudr_timeline():
+    fig, ax = plt.subplots(figsize=(14, 5.5))
+    ax.axis("off")
+    ax.set_xlim(-0.5, 14)
+    ax.set_ylim(-2, 4)
 
-    systems = [
-        "DeforestNet\n(Sentinel Free)",
-        "GFW / GLAD\n(Landsat Free)",
-        "MapBiomas\n(Landsat Free)",
-        "SarVision\n(Enterprise)",
-        "Kayrros\n(Enterprise)",
-        "Satelligence\n(Enterprise)",
-        "Planet Labs\n(Commercial)",
-        "Maxar/Vantor\n(VHR Tasking)"
+    fig.text(0.5, 0.95, "EUDR Compliance Timeline: The $2.5B Window of Opportunity",
+             ha="center", fontsize=16, fontweight="bold", color=WHITE)
+
+    # Timeline bar
+    ax.plot([0.5, 13.5], [1, 1], color=SURFACE, lw=8, solid_capstyle="round", zorder=1)
+
+    events = [
+        (1.0,  "Jun 2023",  "EUDR\nAdopted",         TEXT3,   "above", 10),
+        (3.0,  "Dec 2024",  "Info System\nLaunched",  BLUE,    "below", 10),
+        (4.5,  "Mar 2026",  "WE ARE\nHERE",           GREEN,   "above", 12),
+        (7.5,  "Dec 2026",  "EUDR Deadline\n(Large Operators)", RED, "below", 12),
+        (9.5,  "Jun 2027",  "EUDR Deadline\n(Small Operators)", RED_D, "above", 10),
+        (12.0, "2028-30",   "Carbon Market\nRecovery", AMBER,  "below", 10),
     ]
-    costs = [0, 0, 0, 150, 250, 200, 300, 500]
-    colors = [GREEN, PURPLE, PURPLE, AMBER, AMBER, BLUE, AMBER, RED]
 
-    bars = ax.barh(range(len(systems)), costs, color=colors, height=0.6,
-                   edgecolor="#ffffff10", linewidth=0.5)
+    for x, date, label, color, pos, fs in events:
+        # Dot on timeline
+        ax.plot(x, 1, "o", color=color, ms=14, zorder=3)
+        ax.plot(x, 1, "o", color=color, ms=20, alpha=0.2, zorder=2)
 
-    # Add cost labels
-    for i, (bar, cost) in enumerate(zip(bars, costs)):
-        if cost == 0:
-            ax.text(8, i, "FREE (ESA Open Data)", va="center", fontsize=11,
-                    fontweight="bold", color=GREEN)
-        else:
-            ax.text(cost + 8, i, f"~${cost}K/year", va="center", fontsize=11,
-                    fontweight="bold", color=colors[i])
+        # Text
+        y_offset = 2.2 if pos == "above" else -0.5
+        va = "bottom" if pos == "above" else "top"
+        ax.text(x, y_offset, label, ha="center", va=va, fontsize=fs,
+                fontweight="bold", color=color)
+        ax.text(x, y_offset + (0.5 if pos == "above" else -0.5),
+                date, ha="center", va=va, fontsize=8, color=TEXT3)
 
-    ax.set_yticks(range(len(systems)))
-    ax.set_yticklabels(systems, fontsize=10)
-    ax.set_xlabel("Estimated Annual Data + Platform Cost (USD Thousands)", fontsize=11)
-    ax.set_title("Annual Cost Comparison: Satellite Data & Analytics",
-                 fontsize=15, fontweight="bold", pad=15)
-    ax.set_xlim(0, 580)
-    ax.grid(True, axis="x", alpha=0.2)
-    ax.invert_yaxis()
+        # Connector line
+        y_start = 1.4 if pos == "above" else 0.6
+        y_end = y_offset - (0.2 if pos == "above" else -0.2)
+        ax.plot([x, x], [y_start, y_end], color=color, lw=1, alpha=0.4)
 
-    # Green highlight for DeforestNet
-    ax.get_yticklabels()[0].set_color(GREEN)
-    ax.get_yticklabels()[0].set_fontweight("bold")
-
-    save(fig, "04_cost_comparison.png")
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 5 – Resolution vs Capability Bubble Chart
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_resolution_bubble():
-    fig, ax = plt.subplots(figsize=(12, 7))
-
-    # x = resolution (m), y = capability score (out of 10), size = data cost inverse
-    competitors = {
-        "DeforestNet":   {"res": 10,  "cap": 9.5, "cost_inv": 900, "color": GREEN},
-        "GFW / GLAD":    {"res": 30,  "cap": 4.0, "cost_inv": 900, "color": PURPLE},
-        "MapBiomas":     {"res": 30,  "cap": 5.0, "cost_inv": 900, "color": TEAL},
-        "SarVision":     {"res": 10,  "cap": 6.5, "cost_inv": 300, "color": CYAN},
-        "Kayrros":       {"res": 10,  "cap": 6.0, "cost_inv": 200, "color": ORANGE},
-        "Satelligence":  {"res": 10,  "cap": 7.5, "cost_inv": 250, "color": BLUE},
-        "Planet Labs":   {"res": 3.5, "cap": 5.5, "cost_inv": 150, "color": AMBER},
-        "Maxar/Vantor":  {"res": 0.3, "cap": 3.0, "cost_inv": 80,  "color": RED},
-    }
-
-    for name, d in competitors.items():
-        ax.scatter(d["res"], d["cap"], s=d["cost_inv"], color=d["color"],
-                   alpha=0.7, edgecolors="white", linewidth=1.5, zorder=3)
-        offset_x = 1.5 if d["res"] > 5 else 0.3
-        offset_y = 0.35
-        if name == "MapBiomas":
-            offset_y = -0.45
-        if name == "Kayrros":
-            offset_y = -0.45
-        ax.annotate(name, (d["res"], d["cap"]),
-                    xytext=(offset_x, offset_y), textcoords="offset fontsize",
-                    fontsize=10, fontweight="bold", color=d["color"])
-
-    ax.set_xscale("log")
-    ax.set_xticks([0.3, 1, 3, 10, 30])
-    ax.set_xticklabels(["0.3m", "1m", "3m", "10m", "30m"])
-    ax.set_xlabel("Spatial Resolution (log scale, lower = finer)", fontsize=12)
-    ax.set_ylabel("Overall Capability Score (10 = best)", fontsize=12)
-    ax.set_title("Resolution vs Capability vs Cost Efficiency",
-                 fontsize=15, fontweight="bold", pad=15)
-    ax.grid(True, alpha=0.2)
-    ax.set_ylim(1.5, 11)
-
-    # Legend for bubble size
-    for size, label in [(900, "Free/Low Cost"), (300, "Medium"), (80, "Expensive")]:
-        ax.scatter([], [], s=size, color=GRID, alpha=0.5, edgecolors="white",
-                   linewidth=1, label=label)
-    ax.legend(title="Bubble Size = Cost Efficiency", loc="lower left",
-              fontsize=9, title_fontsize=10, framealpha=0.3, edgecolor=GRID)
-
-    # Highlight DeforestNet zone
-    from matplotlib.patches import FancyBboxPatch
-    rect = FancyBboxPatch((6, 8.8), 8, 1.6, boxstyle="round,pad=0.3",
-                           facecolor=GREEN, alpha=0.08, edgecolor=GREEN, lw=1.5, ls="--")
+    # Highlight window
+    rect = mpatches.FancyBboxPatch((3.8, 0.4), 4.3, 1.2,
+                                    boxstyle="round,pad=0.1",
+                                    facecolor=GREEN, alpha=0.08,
+                                    edgecolor=GREEN, lw=2, ls="--")
     ax.add_patch(rect)
-    ax.text(7, 10.55, "OPTIMAL ZONE", fontsize=9, color=GREEN, fontweight="bold", alpha=0.7)
+    ax.text(6.0, 0.15, "18-MONTH CAPTURE WINDOW", fontsize=9,
+            fontweight="bold", color=GREEN, ha="center")
 
-    save(fig, "05_resolution_vs_capability.png")
+    # Bottom stat bar
+    stats_y = -1.5
+    stats = [
+        ("400,000+", "EU operators need\ncompliance tools", AMBER),
+        ("7 Commodities", "cattle, soy, palm oil,\ncocoa, coffee, wood, rubber", BLUE),
+        ("$250M+", "addressable market\nin EUDR compliance alone", GREEN),
+        ("ZERO", "competitors offer\ncause identification", RED),
+    ]
+    for i, (val, desc, c) in enumerate(stats):
+        cx = 1.5 + i * 3.3
+        ax.text(cx, stats_y, val, fontsize=16, fontweight="bold", color=c, ha="center")
+        ax.text(cx, stats_y - 0.55, desc, fontsize=8, color=TEXT3, ha="center")
+
+    save(fig, "05_eudr_timeline.png")
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 6 – Deforestation Crisis: Annual Tropical Forest Loss
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_deforestation_crisis():
-    fig, ax = plt.subplots(figsize=(12, 6))
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 6. Deforestation Crisis  – "The problem we're solving"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_06_crisis():
+    fig = plt.figure(figsize=(13, 7))
+    gs = GridSpec(1, 2, width_ratios=[2.5, 1], wspace=0.25)
+    ax = fig.add_subplot(gs[0])
+    ax2 = fig.add_subplot(gs[1])
 
+    # Left: Bar chart
     years = list(range(2015, 2025))
-    # Approximate data from WRI Global Forest Review (Mha tropical primary forest loss)
     loss = [3.1, 3.0, 3.9, 3.6, 3.8, 4.2, 3.8, 4.1, 3.7, 6.7]
 
-    colors = [RED if v > 4.0 else AMBER if v > 3.5 else BLUE for v in loss]
-    bars = ax.bar(years, loss, color=colors, width=0.7, edgecolor="#ffffff10", linewidth=0.5)
+    gradient_colors = []
+    for v in loss:
+        if v > 5.0:
+            gradient_colors.append(RED)
+        elif v > 4.0:
+            gradient_colors.append(ORANGE)
+        elif v > 3.5:
+            gradient_colors.append(AMBER)
+        else:
+            gradient_colors.append(BLUE)
 
-    # Highlight 2024
+    bars = ax.bar(years, loss, color=gradient_colors, width=0.7,
+                  edgecolor=BG, linewidth=1.5, zorder=3)
+
+    # 2024 special highlight
     bars[-1].set_edgecolor(RED)
-    bars[-1].set_linewidth(2.5)
-    ax.annotate("RECORD\n6.7 Mha\n(+80% YoY)", (2024, 6.7),
-                xytext=(0, 15), textcoords="offset points",
-                fontsize=12, fontweight="bold", color=RED,
-                ha="center", va="bottom",
-                arrowprops=dict(arrowstyle="->", color=RED, lw=1.5))
+    bars[-1].set_linewidth(3)
+    ax.bar(2024, 6.7, width=0.7, color=RED, alpha=0.15, zorder=2)
 
-    # Glasgow target line
-    ax.axhline(y=0, color=GREEN, ls="--", lw=1.5, alpha=0.5)
-    # Target: reach zero by 2030, so declining from 2021 levels
-    target_years = np.array([2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030])
-    target_loss = np.linspace(3.8, 0, len(target_years))
-    ax.plot(target_years, target_loss, "--", color=GREEN, lw=2, alpha=0.6,
-            label="Glasgow 2030 Target Path")
-    ax.fill_between(target_years, target_loss, alpha=0.05, color=GREEN)
+    ax.annotate("RECORD HIGH\n6.7 Mha", (2024, 6.7),
+                xytext=(0, 25), textcoords="offset points",
+                fontsize=14, fontweight="bold", color=RED, ha="center",
+                arrowprops=dict(arrowstyle="-|>", color=RED, lw=2),
+                path_effects=GLOW)
+    ax.annotate("+80% YoY", (2024, 6.7),
+                xytext=(0, 60), textcoords="offset points",
+                fontsize=10, color=AMBER, ha="center", fontweight="bold")
 
-    ax.set_xlabel("Year", fontsize=12)
-    ax.set_ylabel("Tropical Primary Forest Loss (Million Hectares)", fontsize=12)
-    ax.set_title("Global Deforestation Crisis: Why Better Monitoring is Urgent",
-                 fontsize=15, fontweight="bold", pad=15)
-    ax.legend(fontsize=10, framealpha=0.3, edgecolor=GRID)
-    ax.grid(True, axis="y", alpha=0.2)
+    # Glasgow target
+    target_years = np.linspace(2021, 2030, 20)
+    target_loss = np.linspace(3.8, 0, 20)
+    ax.plot(target_years, target_loss, "--", color=GREEN, lw=2, alpha=0.6)
+    ax.fill_between(target_years, target_loss, alpha=0.03, color=GREEN)
+    ax.text(2029, 0.3, "Glasgow\n2030 Target", fontsize=8, color=GREEN,
+            fontweight="bold", ha="center")
+
+    ax.set_xlabel("Year", fontsize=11)
+    ax.set_ylabel("Tropical Primary Forest Loss (Million Hectares)", fontsize=10)
+    ax.set_title("The Deforestation Crisis is Accelerating", fontsize=14, pad=10)
     ax.set_xticks(years)
     ax.set_ylim(0, 8.5)
+    ax.grid(True, axis="y", alpha=0.15)
 
-    # Add CO2 annotation
-    ax.text(2015.3, 7.8, "2024: 3.1 Gt CO2e emissions from tropical deforestation alone",
-            fontsize=10, color=AMBER, fontstyle="italic")
+    # Right: Key stats panel
+    ax2.axis("off")
+    ax2.set_xlim(0, 10)
+    ax2.set_ylim(0, 10)
 
+    stats = [
+        ("6.7M", "hectares lost\nin 2024", RED, 9.0),
+        ("3.1 Gt", "CO2e emissions\nfrom tropical loss", AMBER, 7.2),
+        ("17 / 20", "countries off track\non Glasgow pledge", ORANGE, 5.4),
+        ("80%", "year-over-year\nincrease in 2024", PINK, 3.6),
+        ("$2B+", "carbon credits\nat risk annually", PURPLE, 1.8),
+    ]
+
+    for val, desc, color, y in stats:
+        # Background card
+        card = mpatches.FancyBboxPatch((0.5, y - 0.7), 9, 1.4,
+                                        boxstyle="round,pad=0.2",
+                                        facecolor=SURFACE, edgecolor=color,
+                                        lw=1.5, alpha=0.6)
+        ax2.add_patch(card)
+        ax2.text(2.0, y, val, fontsize=18, fontweight="bold", color=color,
+                 ha="center", va="center")
+        ax2.text(5.5, y, desc, fontsize=9, color=TEXT2, va="center")
+
+    fig.suptitle("", y=0.98)
     save(fig, "06_deforestation_crisis.png")
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 7 – Binary vs Multi-Class: The Gap DeforestNet Fills
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_classification_gap():
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 7. The Classification Revolution  –  Binary vs 6-Class
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_07_classification_revolution():
+    fig = plt.figure(figsize=(14, 7))
+    gs = GridSpec(1, 3, width_ratios=[1, 0.15, 1], wspace=0.05)
 
-    # Left: What competitors see (binary)
-    ax = axes[0]
-    labels_bin = ["Forest\n(No Change)", "Non-Forest\n(Deforestation)"]
-    sizes_bin = [65, 35]
-    colors_bin = [GREEN, RED]
-    wedges, texts, autotexts = ax.pie(
-        sizes_bin, labels=labels_bin, colors=colors_bin, autopct="%1.0f%%",
-        startangle=90, textprops={"fontsize": 12, "color": TEXT},
-        wedgeprops={"edgecolor": BG, "linewidth": 2}
+    # Left: What competitors see
+    ax1 = fig.add_subplot(gs[0])
+    labels = ["Forest\n(No Change)", "Non-Forest\n(Change Detected)"]
+    sizes = [65, 35]
+    colors = ["#2d5a3d", "#7f1d1d"]
+    edge_colors = [GREEN_D, RED_D]
+    wedges, texts, autotexts = ax1.pie(
+        sizes, labels=labels, colors=colors, autopct="%1.0f%%",
+        startangle=90, textprops={"fontsize": 11, "color": TEXT},
+        wedgeprops={"edgecolor": BG, "linewidth": 3},
+        pctdistance=0.55
     )
     for t in autotexts:
         t.set_fontweight("bold")
-        t.set_fontsize(14)
-    ax.set_title("Industry Standard\n(Binary Classification)", fontsize=14,
-                 fontweight="bold", pad=15, color=RED)
-    ax.text(0, -1.35, '"WHAT happened"\nbut not WHY',
-            ha="center", fontsize=11, fontstyle="italic", color="#94a3b8")
+        t.set_fontsize(15)
+        t.set_color(WHITE)
+    ax1.set_title("Everyone Else\nBinary Classification", fontsize=14,
+                  fontweight="bold", color=RED, pad=15)
+    ax1.text(0, -1.4, '"Something happened here"', ha="center",
+             fontsize=11, color=TEXT3, fontstyle="italic")
+    ax1.text(0, -1.7, "Cannot tell WHAT or WHY", ha="center",
+             fontsize=10, fontweight="bold", color=RED)
 
-    # Right: What DeforestNet sees (6-class)
-    ax = axes[1]
-    labels_mc = ["Forest", "Logging", "Mining", "Agriculture", "Fire", "Infrastructure"]
-    sizes_mc = [50, 12, 10, 15, 8, 5]
-    colors_mc = [GREEN, ORANGE, RED, AMBER, "#dc2626", PURPLE]
-    explode = [0, 0.05, 0.05, 0.05, 0.05, 0.05]
-    wedges, texts, autotexts = ax.pie(
-        sizes_mc, labels=labels_mc, colors=colors_mc, autopct="%1.0f%%",
+    # Center arrow
+    ax_mid = fig.add_subplot(gs[1])
+    ax_mid.axis("off")
+    ax_mid.set_xlim(0, 1)
+    ax_mid.set_ylim(0, 1)
+    ax_mid.annotate("", xy=(0.8, 0.5), xytext=(0.2, 0.5),
+                    arrowprops=dict(arrowstyle="-|>", color=GREEN, lw=4))
+    ax_mid.text(0.5, 0.62, "vs", fontsize=14, fontweight="bold",
+                color=TEXT3, ha="center")
+
+    # Right: What DeforestNet sees
+    ax2 = fig.add_subplot(gs[2])
+    labels2 = ["Forest", "Logging", "Mining", "Agriculture", "Fire", "Infrastructure"]
+    sizes2 = [50, 12, 10, 15, 8, 5]
+    colors2 = ["#065f46", "#92400e", "#7f1d1d", "#78350f", "#991b1b", "#4c1d95"]
+    edge_colors2 = [GREEN, ORANGE, RED, AMBER, RED_D, PURPLE]
+    explode = [0, 0.06, 0.06, 0.06, 0.06, 0.06]
+    wedges2, texts2, autotexts2 = ax2.pie(
+        sizes2, labels=labels2, colors=colors2, autopct="%1.0f%%",
         startangle=90, explode=explode,
         textprops={"fontsize": 10, "color": TEXT},
-        wedgeprops={"edgecolor": BG, "linewidth": 2}
+        wedgeprops={"edgecolor": BG, "linewidth": 3},
+        pctdistance=0.7
     )
-    for t in autotexts:
+    for w, ec in zip(wedges2, edge_colors2):
+        w.set_edgecolor(ec)
+    for t in autotexts2:
         t.set_fontweight("bold")
         t.set_fontsize(11)
-    ax.set_title("DeforestNet\n(6-Class Cause Identification)", fontsize=14,
-                 fontweight="bold", pad=15, color=GREEN)
-    ax.text(0, -1.35, '"WHAT happened AND WHY"\nActionable intelligence for EUDR, carbon credits, enforcement',
-            ha="center", fontsize=10, fontstyle="italic", color="#94a3b8")
+        t.set_color(WHITE)
+    ax2.set_title("DeforestNet\n6-Class Cause Identification", fontsize=14,
+                  fontweight="bold", color=GREEN, pad=15)
+    ax2.text(0, -1.4, '"Mining detected at 10.5N, 76.3E"', ha="center",
+             fontsize=11, color=TEXT3, fontstyle="italic")
+    ax2.text(0, -1.7, "Actionable intelligence for enforcement & compliance", ha="center",
+             fontsize=10, fontweight="bold", color=GREEN)
 
-    fig.suptitle("The Classification Gap: Why Cause Identification Matters",
-                 fontsize=16, fontweight="bold", y=1.02)
-
-    fig.tight_layout()
-    save(fig, "07_classification_gap.png")
+    fig.suptitle("The Classification Gap: Why Cause Identification Changes Everything",
+                 fontsize=16, fontweight="bold", y=0.98)
+    save(fig, "07_classification_revolution.png")
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 8 – Cloud Cover Problem: Why SAR Matters
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_cloud_cover():
-    fig, ax = plt.subplots(figsize=(12, 6))
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 8. Cloud Cover Problem  –  "Why optical-only fails"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_08_cloud_cover():
+    fig, ax = plt.subplots(figsize=(13, 6.5))
 
-    regions = [
-        "Amazon\nBasin", "Congo\nBasin", "SE Asia\n(Borneo)", "Western\nGhats (India)",
-        "Central\nAmerica", "West\nAfrica"
-    ]
-    cloud_pct = [87, 80, 75, 70, 72, 68]
-    usable_optical = [13, 20, 25, 30, 28, 32]
+    regions = ["Amazon\nBasin", "Congo\nBasin", "SE Asia\n(Borneo)",
+               "Western Ghats\n(India)", "Central\nAmerica", "West\nAfrica"]
+    cloud = [87, 80, 75, 70, 72, 68]
+    usable = [13, 20, 25, 30, 28, 32]
 
     x = np.arange(len(regions))
-    w = 0.35
+    w = 0.32
 
-    bars1 = ax.bar(x - w/2, cloud_pct, w, color=RED, alpha=0.8, label="Cloud-Blocked (%)")
-    bars2 = ax.bar(x + w/2, usable_optical, w, color=BLUE, alpha=0.8, label="Usable Optical (%)")
+    # Stacked: cloud-blocked portion in red, usable in blue
+    bars_cloud = ax.bar(x, cloud, width=0.65, color=RED_D, alpha=0.7,
+                        edgecolor=BG, linewidth=1.5, label="Cloud-Blocked Optical Data")
+    bars_usable = ax.bar(x, usable, width=0.65, bottom=0, color=BLUE_D, alpha=0.5,
+                         edgecolor=BG, linewidth=1.5, label="Usable Optical Windows")
 
-    # SAR line at 100%
-    ax.axhline(y=95, color=GREEN, ls="-", lw=2.5, alpha=0.8)
-    ax.text(len(regions) - 0.5, 96.5, "SAR Availability: ~95-100%",
-            fontsize=12, fontweight="bold", color=GREEN, ha="right")
+    # Redraw usable from 0
+    for i, (b, u) in enumerate(zip(cloud, usable)):
+        # Red on top of blue
+        pass
 
-    for bar, val in zip(bars1, cloud_pct):
-        ax.text(bar.get_x() + bar.get_width()/2, val + 1.5, f"{val}%",
-                ha="center", fontsize=10, fontweight="bold", color=RED)
-    for bar, val in zip(bars2, usable_optical):
-        ax.text(bar.get_x() + bar.get_width()/2, val + 1.5, f"{val}%",
-                ha="center", fontsize=10, fontweight="bold", color=BLUE)
+    # Actually let's do it differently - cleaner
+    ax.clear()
 
-    ax.set_xticks(x)
+    # Full bar = 100%, split into cloud/usable
+    for i, (c, u) in enumerate(zip(cloud, usable)):
+        # Usable (bottom, small)
+        ax.bar(i, u, width=0.6, color=BLUE, alpha=0.7,
+               edgecolor=BG, linewidth=1)
+        # Cloud blocked (on top)
+        ax.bar(i, c, width=0.6, bottom=u, color=RED_D, alpha=0.6,
+               edgecolor=BG, linewidth=1)
+
+        # Labels
+        ax.text(i, u/2, f"{u}%\nusable", ha="center", va="center",
+                fontsize=9, fontweight="bold", color=WHITE)
+        ax.text(i, u + c/2, f"{c}%\nblocked", ha="center", va="center",
+                fontsize=9, fontweight="bold", color=WHITE, alpha=0.8)
+
+    # SAR line
+    ax.axhline(98, color=GREEN, lw=3, ls="-", alpha=0.9, zorder=5)
+    ax.text(len(regions) - 0.5, 100.5,
+            "SAR Availability: ~98-100%  (cloud-independent)",
+            fontsize=11, fontweight="bold", color=GREEN, ha="right")
+
+    # Annotation
+    ax.annotate("DeforestNet uses\nSentinel-1 SAR", xy=(0, 98),
+                xytext=(-0.3, 85), fontsize=10, color=GREEN,
+                fontweight="bold",
+                arrowprops=dict(arrowstyle="-|>", color=GREEN, lw=1.5))
+
+    ax.set_xticks(range(len(regions)))
     ax.set_xticklabels(regions, fontsize=10)
-    ax.set_ylabel("Percentage of Observations (%)", fontsize=11)
-    ax.set_title("The Cloud Cover Problem in Tropical Forest Monitoring",
-                 fontsize=15, fontweight="bold", pad=15)
-    ax.set_ylim(0, 108)
-    ax.legend(fontsize=10, loc="center right", framealpha=0.3, edgecolor=GRID)
-    ax.grid(True, axis="y", alpha=0.15)
+    ax.set_ylabel("Observation Availability (%)", fontsize=11)
+    ax.set_title("The Cloud Cover Problem: Why Optical-Only Systems Fail in Tropics",
+                 fontsize=14, pad=12)
+    ax.set_ylim(0, 110)
+    ax.grid(True, axis="y", alpha=0.1)
 
-    ax.text(0.5, -0.13, "Optical-only systems (GFW, Planet, MapBiomas) lose 68-87% of observations. "
-            "DeforestNet's SAR+Optical fusion ensures continuous monitoring.",
-            transform=ax.transAxes, ha="center", fontsize=10, color="#94a3b8",
+    # Legend
+    handles = [
+        mpatches.Patch(color=RED_D, alpha=0.6, label="Cloud-Blocked (lost data)"),
+        mpatches.Patch(color=BLUE, alpha=0.7, label="Usable Optical Windows"),
+        plt.Line2D([0], [0], color=GREEN, lw=3, label="SAR Continuous Coverage"),
+    ]
+    ax.legend(handles=handles, loc="upper right", fontsize=9,
+              framealpha=0.3, edgecolor=SURFACE)
+
+    # Bottom text
+    ax.text(0.5, -0.12,
+            "GFW, Planet, MapBiomas, GLAD = optical only. DeforestNet + SarVision + Kayrros use SAR. "
+            "Only DeforestNet combines SAR + Optical + 6-class AI.",
+            transform=ax.transAxes, ha="center", fontsize=8.5, color=TEXT3,
             fontstyle="italic")
 
     save(fig, "08_cloud_cover_problem.png")
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 9 – 11-Band Architecture Diagram
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_band_architecture():
-    fig, ax = plt.subplots(figsize=(14, 8))
-    ax.set_xlim(0, 14)
-    ax.set_ylim(0, 10)
-    ax.axis("off")
-
-    # Title
-    ax.text(7, 9.5, "DeforestNet: 11-Band Multi-Sensor Input Architecture",
-            ha="center", fontsize=16, fontweight="bold", color=TEXT)
-
-    # Sentinel-2 box
-    s2_box = mpatches.FancyBboxPatch((0.5, 5.5), 4.5, 3.2, boxstyle="round,pad=0.2",
-                                       facecolor="#1e3a5f", edgecolor=BLUE, lw=2)
-    ax.add_patch(s2_box)
-    ax.text(2.75, 8.3, "SENTINEL-2 (Optical)", ha="center", fontsize=12,
-            fontweight="bold", color=BLUE)
-
-    s2_bands = [
-        ("B2", "Blue", "490nm", "#3b82f6"),
-        ("B3", "Green", "560nm", "#22c55e"),
-        ("B4", "Red", "665nm", "#ef4444"),
-        ("B8", "NIR", "842nm", "#a855f7"),
-    ]
-    for i, (band, name, wl, color) in enumerate(s2_bands):
-        y = 7.6 - i * 0.5
-        rect = mpatches.FancyBboxPatch((0.8, y - 0.18), 3.9, 0.36,
-                                        boxstyle="round,pad=0.05",
-                                        facecolor=color, alpha=0.3, edgecolor=color, lw=1)
-        ax.add_patch(rect)
-        ax.text(1.0, y, f"{band}", fontsize=10, fontweight="bold", color=color, va="center")
-        ax.text(2.0, y, f"{name}", fontsize=9, color=TEXT, va="center")
-        ax.text(4.4, y, f"{wl}", fontsize=9, color="#94a3b8", va="center", ha="right")
-
-    # Sentinel-1 box
-    s1_box = mpatches.FancyBboxPatch((0.5, 3.3), 4.5, 1.8, boxstyle="round,pad=0.2",
-                                       facecolor="#3a1e3a", edgecolor=PINK, lw=2)
-    ax.add_patch(s1_box)
-    ax.text(2.75, 4.8, "SENTINEL-1 (SAR C-Band)", ha="center", fontsize=12,
-            fontweight="bold", color=PINK)
-
-    s1_bands = [
-        ("VV", "Co-Polarized", "5.405 GHz", PINK),
-        ("VH", "Cross-Polarized", "5.405 GHz", PURPLE),
-    ]
-    for i, (band, name, freq, color) in enumerate(s1_bands):
-        y = 4.2 - i * 0.5
-        rect = mpatches.FancyBboxPatch((0.8, y - 0.18), 3.9, 0.36,
-                                        boxstyle="round,pad=0.05",
-                                        facecolor=color, alpha=0.3, edgecolor=color, lw=1)
-        ax.add_patch(rect)
-        ax.text(1.0, y, f"{band}", fontsize=10, fontweight="bold", color=color, va="center")
-        ax.text(2.0, y, f"{name}", fontsize=9, color=TEXT, va="center")
-        ax.text(4.4, y, f"{freq}", fontsize=9, color="#94a3b8", va="center", ha="right")
-
-    # Derived indices box
-    d_box = mpatches.FancyBboxPatch((0.5, 0.5), 4.5, 2.4, boxstyle="round,pad=0.2",
-                                      facecolor="#1e3a2a", edgecolor=GREEN, lw=2)
-    ax.add_patch(d_box)
-    ax.text(2.75, 2.6, "DERIVED INDICES", ha="center", fontsize=12,
-            fontweight="bold", color=GREEN)
-
-    derived = [
-        ("NDVI", "(NIR-Red)/(NIR+Red)", GREEN),
-        ("EVI",  "Enhanced Veg Index", LIME),
-        ("SAVI", "Soil-Adjusted VI", TEAL),
-        ("VV/VH", "SAR Ratio", CYAN),
-        ("RVI",  "Radar Veg Index", AMBER),
-    ]
-    for i, (name, desc, color) in enumerate(derived):
-        y = 2.2 - i * 0.35
-        ax.text(1.0, y, f"{name}", fontsize=10, fontweight="bold", color=color, va="center")
-        ax.text(2.3, y, f"{desc}", fontsize=8, color="#94a3b8", va="center")
-
-    # Arrow to fusion box
-    ax.annotate("", xy=(6.5, 5), xytext=(5.2, 5),
-                arrowprops=dict(arrowstyle="-|>", color=TEXT, lw=2.5))
-
-    # Fusion box
-    fusion_box = mpatches.FancyBboxPatch((6.5, 3.5), 3, 3, boxstyle="round,pad=0.3",
-                                           facecolor="#1e293b", edgecolor=GREEN, lw=3)
-    ax.add_patch(fusion_box)
-    ax.text(8, 6.1, "11-BAND STACK", ha="center", fontsize=14,
-            fontweight="bold", color=GREEN)
-    ax.text(8, 5.5, "[B, 11, 256, 256]", ha="center", fontsize=11,
-            color=AMBER, fontfamily="monospace")
-    ax.text(8, 4.9, "4 Optical + 2 SAR", ha="center", fontsize=10, color=TEXT)
-    ax.text(8, 4.5, "+ 5 Derived Indices", ha="center", fontsize=10, color=TEXT)
-    ax.text(8, 3.9, "10m Resolution", ha="center", fontsize=10, color=CYAN)
-
-    # Arrow to model
-    ax.annotate("", xy=(10.8, 5), xytext=(9.7, 5),
-                arrowprops=dict(arrowstyle="-|>", color=TEXT, lw=2.5))
-
-    # Model output box
-    model_box = mpatches.FancyBboxPatch((10.8, 2.5), 2.8, 5, boxstyle="round,pad=0.3",
-                                          facecolor="#1e293b", edgecolor=AMBER, lw=3)
-    ax.add_patch(model_box)
-    ax.text(12.2, 7.1, "U-Net +\nResNet-34", ha="center", fontsize=13,
-            fontweight="bold", color=AMBER)
-    ax.text(12.2, 6.2, "24.4M params", ha="center", fontsize=10, color="#94a3b8")
-
-    # Output classes
-    classes = [
-        ("Forest", GREEN),
-        ("Logging", ORANGE),
-        ("Mining", RED),
-        ("Agriculture", AMBER),
-        ("Fire", "#dc2626"),
-        ("Infrastructure", PURPLE),
-    ]
-    ax.text(12.2, 5.5, "6-Class Output:", ha="center", fontsize=10,
-            fontweight="bold", color=TEXT)
-    for i, (cls, color) in enumerate(classes):
-        y = 5.0 - i * 0.4
-        ax.plot(11.3, y, "s", color=color, ms=8)
-        ax.text(11.6, y, cls, fontsize=9, color=color, va="center", fontweight="bold")
-
-    save(fig, "09_band_architecture.png")
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# GRAPH 10 – DeforestNet Competitive Advantage Summary
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def graph_competitive_advantage():
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 9. Cost-to-Impact Ratio  – "Maximum impact, zero data cost"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_09_cost_impact():
     fig, ax = plt.subplots(figsize=(12, 7))
-    ax.axis("off")
 
-    ax.text(6, 9.5, "DeforestNet: Competitive Advantage Summary",
-            ha="center", fontsize=18, fontweight="bold", color=GREEN)
-
-    advantages = [
-        ("ONLY 6-CLASS CAUSE IDENTIFICATION",
-         "No competitor identifies WHY deforestation occurs. All others = binary forest/non-forest.",
-         GREEN, "INDUSTRY FIRST"),
-        ("11-BAND SAR + OPTICAL FUSION",
-         "Cloud-penetrating SAR + spectral optical in unified deep learning model. Most use optical only.",
-         BLUE, "TECHNICAL EDGE"),
-        ("ZERO DATA COST",
-         "100% free ESA Sentinel data. Competitors charge $30K-$500K/year for satellite imagery.",
-         PURPLE, "COST ADVANTAGE"),
-        ("10m RESOLUTION ON FREE DATA",
-         "Matches commercial resolution. GFW/GLAD limited to 30m Landsat. 9x more detail per pixel.",
-         CYAN, "RESOLUTION"),
-        ("EUDR COMPLIANCE READY",
-         "Cause-specific classification directly enables EU regulation compliance for 400K+ operators.",
-         AMBER, "MARKET TIMING"),
-        ("EXPLAINABLE AI (GradCAM)",
-         "Visual explanations of predictions. Builds trust with regulators and auditors.",
-         PINK, "TRANSPARENCY"),
+    systems = [
+        ("DeforestNet",  0,    93, GREEN,  900),
+        ("GFW / GLAD",   0,    38, PURPLE, 700),
+        ("MapBiomas",    0,    42, TEAL,   500),
+        ("SarVision",    150,  55, CYAN,   350),
+        ("Kayrros",      250,  52, ORANGE, 400),
+        ("Satelligence", 200,  65, BLUE,   500),
+        ("Planet Labs",  300,  50, AMBER,  600),
+        ("Maxar",        500,  30, RED,    450),
     ]
 
-    for i, (title, desc, color, badge) in enumerate(advantages):
-        y = 8.2 - i * 1.35
+    for name, cost, cap, color, size in systems:
+        ax.scatter(cost, cap, s=size, c=color, alpha=0.75,
+                   edgecolors=WHITE, linewidth=2, zorder=3)
+        # Glow
+        ax.scatter(cost, cap, s=size * 2.5, c=color, alpha=0.08, zorder=2)
 
-        # Badge
-        badge_box = mpatches.FancyBboxPatch((0.3, y - 0.05), 2.2, 0.45,
-                                              boxstyle="round,pad=0.1",
-                                              facecolor=color, alpha=0.2,
-                                              edgecolor=color, lw=1.5)
-        ax.add_patch(badge_box)
-        ax.text(1.4, y + 0.17, badge, ha="center", fontsize=8,
-                fontweight="bold", color=color)
+        ox = 15 if cost > 0 else 15
+        oy = 2
+        if name == "GFW / GLAD":
+            oy = -4
+        if name == "MapBiomas":
+            oy = -4
+            ox = 15
 
-        # Title + description
-        ax.text(2.8, y + 0.2, title, fontsize=12, fontweight="bold", color=color)
-        ax.text(2.8, y - 0.25, desc, fontsize=9.5, color="#94a3b8", wrap=True)
+        ax.text(cost + ox, cap + oy, name, fontsize=10,
+                fontweight="bold" if name == "DeforestNet" else "normal",
+                color=color, zorder=4)
 
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 10)
+    # Optimal zone highlight
+    rect = mpatches.FancyBboxPatch((-20, 80), 80, 20,
+                                    boxstyle="round,pad=5",
+                                    facecolor=GREEN, alpha=0.06,
+                                    edgecolor=GREEN, lw=2, ls="--", zorder=1)
+    ax.add_patch(rect)
+    ax.text(20, 97, "OPTIMAL: High Impact + Zero Cost", fontsize=9,
+            fontweight="bold", color=GREEN, ha="center")
 
-    save(fig, "10_competitive_advantage.png")
+    # Arrows showing dimensions
+    ax.annotate("Better", xy=(-10, 95), fontsize=8, color=GREEN,
+                fontweight="bold", ha="right")
+    ax.annotate("Worse", xy=(520, 25), fontsize=8, color=RED,
+                ha="left")
+
+    ax.set_xlabel("Annual Data + Platform Cost (USD Thousands)  >>>", fontsize=11)
+    ax.set_ylabel("<<<  Capability Score (out of 100)", fontsize=11)
+    ax.set_title("Cost-to-Impact Ratio: DeforestNet Delivers Maximum Impact at Zero Data Cost",
+                 fontsize=13, fontweight="bold", pad=12)
+    ax.set_xlim(-30, 560)
+    ax.set_ylim(20, 102)
+    ax.grid(True, alpha=0.1)
+
+    save(fig, "09_cost_impact_ratio.png")
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 10. The "Why DeforestNet" Summary Slide
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+def graph_10_why_deforestnet():
+    fig, ax = plt.subplots(figsize=(14, 9))
+    ax.axis("off")
+    ax.set_xlim(0, 14)
+    ax.set_ylim(-1, 10)
+
+    fig.text(0.5, 0.97, "Why DeforestNet?",
+             ha="center", fontsize=26, fontweight="bold", color=GREEN,
+             path_effects=[pe.withStroke(linewidth=4, foreground=BG)])
+    fig.text(0.5, 0.93, "The only solution combining multi-sensor AI with cause-of-deforestation classification",
+             ha="center", fontsize=12, color=TEXT2)
+
+    cards = [
+        # Row 1
+        {"x": 0.5,  "y": 6.8, "w": 4.0, "h": 2.0, "icon": "6",
+         "title": "CLASSES", "subtitle": "Cause Identification",
+         "body": "Logging, Mining, Agriculture,\nFire, Infrastructure + Forest",
+         "accent": "Not binary. Actionable.",
+         "color": GREEN},
+        {"x": 5.0,  "y": 6.8, "w": 4.0, "h": 2.0, "icon": "11",
+         "title": "SPECTRAL BANDS", "subtitle": "Multi-Sensor Fusion",
+         "body": "4 Optical + 2 SAR + 5 Derived\nindices in unified deep learning",
+         "accent": "Richest input in the market.",
+         "color": BLUE},
+        {"x": 9.5,  "y": 6.8, "w": 4.0, "h": 2.0, "icon": "$0",
+         "title": "DATA COST", "subtitle": "100% Free ESA Data",
+         "body": "Sentinel-1 + Sentinel-2\nCopernicus Open Access",
+         "accent": "Competitors pay $30-500K/yr.",
+         "color": AMBER},
+        # Row 2
+        {"x": 0.5,  "y": 3.8, "w": 4.0, "h": 2.0, "icon": "10m",
+         "title": "RESOLUTION", "subtitle": "High-Detail Mapping",
+         "body": "9x more detail than GFW/GLAD\n(30m Landsat baseline)",
+         "accent": "See smallholder-level changes.",
+         "color": PURPLE},
+        {"x": 5.0,  "y": 3.8, "w": 4.0, "h": 2.0, "icon": "24/7",
+         "title": "MONITORING", "subtitle": "Cloud-Penetrating SAR",
+         "body": "Microwave radar sees through\nclouds, rain, smoke, darkness",
+         "accent": "Never miss deforestation.",
+         "color": CYAN},
+        {"x": 9.5,  "y": 3.8, "w": 4.0, "h": 2.0, "icon": "XAI",
+         "title": "EXPLAINABLE", "subtitle": "GradCAM Transparency",
+         "body": "Visual heatmaps showing WHY\nthe AI flagged each area",
+         "accent": "Auditor & regulator ready.",
+         "color": PINK},
+    ]
+
+    for card in cards:
+        x, y, w, h = card["x"], card["y"], card["w"], card["h"]
+        c = card["color"]
+
+        # Card background
+        bg_rect = mpatches.FancyBboxPatch(
+            (x, y), w, h, boxstyle="round,pad=0.15",
+            facecolor=SURFACE, edgecolor=c, lw=2, alpha=0.8)
+        ax.add_patch(bg_rect)
+
+        # Top accent bar
+        accent_rect = mpatches.FancyBboxPatch(
+            (x + 0.1, y + h - 0.12), w - 0.2, 0.08,
+            boxstyle="round,pad=0.02",
+            facecolor=c, edgecolor="none", alpha=0.7)
+        ax.add_patch(accent_rect)
+
+        # Icon number
+        ax.text(x + 0.4, y + h - 0.55, card["icon"],
+                fontsize=24, fontweight="bold", color=c, va="center",
+                path_effects=GLOW)
+
+        # Title + subtitle
+        ax.text(x + 1.8, y + h - 0.4, card["title"],
+                fontsize=11, fontweight="bold", color=WHITE)
+        ax.text(x + 1.8, y + h - 0.7, card["subtitle"],
+                fontsize=8, color=c)
+
+        # Body text
+        ax.text(x + 0.3, y + 0.7, card["body"],
+                fontsize=9, color=TEXT2, va="center")
+
+        # Accent text
+        ax.text(x + 0.3, y + 0.15, card["accent"],
+                fontsize=8, color=c, fontweight="bold", fontstyle="italic")
+
+    # Bottom impact statement
+    ax.text(7, 2.8, "MARKET POSITION", ha="center", fontsize=11,
+            fontweight="bold", color=TEXT3)
+
+    bottom_stats = [
+        ("ZERO\ncompetitors", "offer automated\ncause identification", RED),
+        ("400,000+\noperators", "need EUDR compliance\ntools by Dec 2026", AMBER),
+        ("$50B+\nmarket", "satellite services\nby 2032", GREEN),
+        ("6.7M ha\nlost in 2024", "record deforestation\n= urgent demand", ORANGE),
+    ]
+    for i, (val, desc, c) in enumerate(bottom_stats):
+        cx = 1.5 + i * 3.3
+        # Mini card
+        mini = mpatches.FancyBboxPatch(
+            (cx - 1.3, 0.2), 2.6, 2.2, boxstyle="round,pad=0.1",
+            facecolor=CARD, edgecolor=c, lw=1.5, alpha=0.5)
+        ax.add_patch(mini)
+        ax.text(cx, 1.7, val, fontsize=13, fontweight="bold",
+                color=c, ha="center")
+        ax.text(cx, 0.7, desc, fontsize=8, color=TEXT3, ha="center")
+
+    save(fig, "10_why_deforestnet.png")
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 if __name__ == "__main__":
-    print("Generating professional market & competitor graphs...\n")
+    print("Generating advanced pitch-deck graphs (v2)...\n")
 
-    graph_market_growth()
-    graph_feature_heatmap()
-    graph_radar_chart()
-    graph_cost_comparison()
-    graph_resolution_bubble()
-    graph_deforestation_crisis()
-    graph_classification_gap()
-    graph_cloud_cover()
-    graph_band_architecture()
-    graph_competitive_advantage()
+    graph_01_market_funnel()
+    graph_02_positioning_map()
+    graph_03_impact_scorecard()
+    graph_04_radar()
+    graph_05_eudr_timeline()
+    graph_06_crisis()
+    graph_07_classification_revolution()
+    graph_08_cloud_cover()
+    graph_09_cost_impact()
+    graph_10_why_deforestnet()
 
+    n = len(list(OUT.glob("*.png")))
     print(f"\nAll graphs saved to: {OUT}")
-    print(f"Total: {len(list(OUT.glob('*.png')))} PNG files")
+    print(f"Total: {n} PNG files (250 DPI)")

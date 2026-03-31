@@ -291,15 +291,16 @@ Step 12: Integration                  [OK] - All connected
 
 ## Market & Competitor Analysis
 
-Comprehensive industry research with 10 professional analysis charts:
+Comprehensive industry research with 10 professional pitch-deck charts:
 
-| Chart | Description |
-|-------|-------------|
-| ![Market Growth](docs/graphs/01_market_growth_forecast.png) | **$50B+ market** by 2032 at 19.9% CAGR |
-| ![Feature Comparison](docs/graphs/02_feature_comparison_heatmap.png) | DeforestNet scores **12/12** vs competitors' max of 7/12 |
-| ![Capability Radar](docs/graphs/03_radar_capability_comparison.png) | Dominates across 8 technical dimensions |
-| ![Classification Gap](docs/graphs/07_classification_gap.png) | **Only solution** with 6-class cause identification |
-| ![Cloud Cover](docs/graphs/08_cloud_cover_problem.png) | SAR solves the 68-87% cloud cover problem |
+| Chart | What it Shows |
+|-------|---------------|
+| ![TAM Funnel](docs/graphs/01_market_funnel.png) | **$50.5B TAM** narrowing to $250M+ serviceable entry point |
+| ![Positioning](docs/graphs/02_competitive_positioning.png) | DeforestNet alone in the **Leader quadrant** |
+| ![Scorecard](docs/graphs/03_impact_scorecard.png) | **7 metrics** where DeforestNet beats every competitor |
+| ![Radar](docs/graphs/04_radar_capability.png) | **93/90 score** vs next best 65/90 across 9 dimensions |
+| ![Classification](docs/graphs/07_classification_revolution.png) | **Only solution** with 6-class cause identification |
+| ![Why](docs/graphs/10_why_deforestnet.png) | Full summary: 6 advantages + 4 market stats |
 
 Full analysis: [`docs/MARKET_AND_COMPETITOR_ANALYSIS.md`](docs/MARKET_AND_COMPETITOR_ANALYSIS.md) | Satellite specs: [`docs/SATELLITE_SPECIFICATIONS.md`](docs/SATELLITE_SPECIFICATIONS.md)
 

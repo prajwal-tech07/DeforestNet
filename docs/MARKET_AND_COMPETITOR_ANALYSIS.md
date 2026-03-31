@@ -5,20 +5,20 @@
 
 ## Visual Analysis Charts
 
-All charts are in the `docs/graphs/` directory:
+All charts are in the `docs/graphs/` directory (250 DPI, pitch-deck quality):
 
-| # | Chart | Description |
-|---|-------|-------------|
-| 1 | ![Market Growth](graphs/01_market_growth_forecast.png) | Satellite & forest monitoring market growth forecast (2024-2032) |
-| 2 | ![Feature Heatmap](graphs/02_feature_comparison_heatmap.png) | Feature comparison heatmap: DeforestNet vs 6 competitors |
-| 3 | ![Radar Chart](graphs/03_radar_capability_comparison.png) | Technical capability radar comparison (8 dimensions) |
-| 4 | ![Cost Comparison](graphs/04_cost_comparison.png) | Annual data + platform cost comparison (8 systems) |
-| 5 | ![Resolution vs Capability](graphs/05_resolution_vs_capability.png) | Resolution vs capability bubble chart |
-| 6 | ![Deforestation Crisis](graphs/06_deforestation_crisis.png) | Global tropical forest loss (2015-2024) with Glasgow targets |
-| 7 | ![Classification Gap](graphs/07_classification_gap.png) | Binary vs 6-class classification: the market gap |
-| 8 | ![Cloud Cover](graphs/08_cloud_cover_problem.png) | Cloud cover problem in tropical monitoring regions |
-| 9 | ![Band Architecture](graphs/09_band_architecture.png) | 11-band multi-sensor input architecture diagram |
-| 10 | ![Competitive Advantage](graphs/10_competitive_advantage.png) | DeforestNet competitive advantage summary |
+| # | Chart | What it Shows |
+|---|-------|---------------|
+| 1 | ![TAM Funnel](graphs/01_market_funnel.png) | **TAM/SAM/SOM** market opportunity funnel ($50.5B -> $250M+ entry) |
+| 2 | ![Positioning Map](graphs/02_competitive_positioning.png) | **Competitive positioning** map: DeforestNet in Leader quadrant |
+| 3 | ![Impact Scorecard](graphs/03_impact_scorecard.png) | **Impact scorecard**: 7 dimensions, DeforestNet vs industry average |
+| 4 | ![Radar](graphs/04_radar_capability.png) | **9-dimension radar**: technical capability vs top 3 competitors |
+| 5 | ![EUDR Timeline](graphs/05_eudr_timeline.png) | **EUDR compliance timeline**: 18-month capture window |
+| 6 | ![Crisis](graphs/06_deforestation_crisis.png) | **Deforestation crisis**: record 6.7M ha (2024) with key stats |
+| 7 | ![Classification](graphs/07_classification_revolution.png) | **The classification gap**: binary vs 6-class cause identification |
+| 8 | ![Cloud Cover](graphs/08_cloud_cover_problem.png) | **Cloud cover problem**: why SAR-only or optical-only fails |
+| 9 | ![Cost-Impact](graphs/09_cost_impact_ratio.png) | **Cost-to-impact ratio**: $0 data cost, highest capability |
+| 10 | ![Why DeforestNet](graphs/10_why_deforestnet.png) | **Summary slide**: 6 key advantages + market stats |
 
 ---
 
