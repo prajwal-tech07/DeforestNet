@@ -1,0 +1,30 @@
+{
+  "predicted_class": "Fire",
+  "predicted_class_idx": 4,
+  "mean_confidence": 0.998775839805603,
+  "band_importance": {
+    "VV": 0.09231507569037276,
+    "VH": 0.08888991835433892,
+    "B2": 0.09180051908912754,
+    "B3": 0.08915517672249199,
+    "B4": 0.09105278599199007,
+    "B8": 0.09058943418278693,
+    "NDVI": 0.08939357065887184,
+    "EVI": 0.092372051987379,
+    "SAVI": 0.0932552461536954,
+    "VV_VH_RATIO": 0.09114776957302034,
+    "RVI": 0.09002845159560997
+  },
+  "top_bands": {
+    "SAVI": 0.0932552461536954,
+    "EVI": 0.092372051987379,
+    "VV": 0.09231507569037276
+  },
+  "explanation_text": "AI Classification: Fire (confidence: 100%)\n\nThe model detected burned areas with charred vegetation and heat signatures.\n\nKey factors in this decision:\n  1. SAVI (9% importance): soil-adjusted vegetation index\n  2. EVI (9% importance): enhanced vegetation index (forest density)\n  3. VV (9% importance): spectral feature\n\nThese top 3 bands account for 28% of the decision.",
+  "class_distribution": {
+    "Logging": 32,
+    "Mining": 164,
+    "Fire": 59334,
+    "Infrastructure": 6006
+  }
+}

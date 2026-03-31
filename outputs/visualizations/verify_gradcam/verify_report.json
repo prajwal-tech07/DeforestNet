@@ -1,0 +1,31 @@
+{
+  "predicted_class": "Logging",
+  "predicted_class_idx": 1,
+  "mean_confidence": 0.9978252649307251,
+  "band_importance": {
+    "VV": 0.08954855819613071,
+    "VH": 0.09041289636056092,
+    "B2": 0.09290443635994622,
+    "B3": 0.09147380596543786,
+    "B4": 0.09060278588678844,
+    "B8": 0.09015477911064804,
+    "NDVI": 0.09113556237128613,
+    "EVI": 0.09254833421751582,
+    "SAVI": 0.0882015932953417,
+    "VV_VH_RATIO": 0.09198766215681271,
+    "RVI": 0.09102958607924161
+  },
+  "top_bands": {
+    "B2": 0.09290443635994622,
+    "EVI": 0.09254833421751582,
+    "VV_VH_RATIO": 0.09198766215681271
+  },
+  "explanation_text": "AI Classification: Logging (confidence: 100%)\n\nThe model detected tree removal patterns with exposed soil and reduced canopy.\n\nKey factors in this decision:\n  1. B2 (9% importance): spectral feature\n  2. EVI (9% importance): enhanced vegetation index (forest density)\n  3. VV_VH_RATIO (9% importance): spectral feature\n\nThese top 3 bands account for 28% of the decision.",
+  "class_distribution": {
+    "Forest": 36,
+    "Logging": 55988,
+    "Mining": 2090,
+    "Agriculture": 11,
+    "Fire": 7411
+  }
+}

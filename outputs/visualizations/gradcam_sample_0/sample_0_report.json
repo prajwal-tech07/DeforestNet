@@ -1,0 +1,28 @@
+{
+  "predicted_class": "Agriculture",
+  "predicted_class_idx": 3,
+  "mean_confidence": 0.9999721646308899,
+  "band_importance": {
+    "VV": 0.09217840445171864,
+    "VH": 0.08940228978445669,
+    "B2": 0.08694924828902777,
+    "B3": 0.09126089906059401,
+    "B4": 0.0892001597378091,
+    "B8": 0.0908883872128673,
+    "NDVI": 0.0927970428514362,
+    "EVI": 0.09159084584237784,
+    "SAVI": 0.09430024327985209,
+    "VV_VH_RATIO": 0.09112519590461048,
+    "RVI": 0.09030728358497342
+  },
+  "top_bands": {
+    "SAVI": 0.09430024327985209,
+    "NDVI": 0.0927970428514362,
+    "VV": 0.09217840445171864
+  },
+  "explanation_text": "AI Classification: Agriculture (confidence: 100%)\n\nThe model detected regular geometric patterns of crop cultivation.\n\nKey factors in this decision:\n  1. SAVI (9% importance): soil-adjusted vegetation index\n  2. NDVI (9% importance): vegetation health index (green = high, brown = low)\n  3. VV (9% importance): spectral feature\n\nThese top 3 bands account for 28% of the decision.",
+  "class_distribution": {
+    "Forest": 411,
+    "Agriculture": 65125
+  }
+}

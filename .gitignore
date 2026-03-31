@@ -4,14 +4,18 @@ __pycache__/
 *$py.class
 
 # Large data files - too big for GitHub
-outputs/preprocessed/train/
-outputs/preprocessed/val/
-outputs/preprocessed/test/
+data/
 *.npz
 *.npy
+database/
 
-# Dataset (stored locally, not in repo)
-dataset/
+# Model checkpoints
+models/checkpoints/*.pth
+models/checkpoints/*.pt
+
+# Log files
+logs/
+*.log
 
 # Virtual environment
 .venv/
