@@ -327,10 +327,10 @@ Trained and evaluated with `python benchmark.py`:
 
 | Chart | Description |
 |-------|-------------|
-| ![Training Curves](outputs/benchmark/training_curves.png) | Loss, accuracy, IoU across 10 epochs with LR scheduling |
-| ![Confusion Matrix](outputs/benchmark/confusion_matrix.png) | Normalized confusion matrix + per-class accuracy breakdown |
-| ![Per-Class Metrics](outputs/benchmark/per_class_metrics.png) | IoU, Dice, Precision, Recall, F1 per deforestation class |
-| ![Band Importance](outputs/benchmark/band_importance.png) | Gradient-based attribution showing all 11 bands contribute |
+| ![Training Curves](docs/benchmark/training_curves.png) | Loss, accuracy, IoU across 10 epochs with LR scheduling |
+| ![Confusion Matrix](docs/benchmark/confusion_matrix.png) | Normalized confusion matrix + per-class accuracy breakdown |
+| ![Per-Class Metrics](docs/benchmark/per_class_metrics.png) | IoU, Dice, Precision, Recall, F1 per deforestation class |
+| ![Band Importance](docs/benchmark/band_importance.png) | Gradient-based attribution showing all 11 bands contribute |
 
 Full report: [`docs/BENCHMARK_REPORT.md`](docs/BENCHMARK_REPORT.md)
 
