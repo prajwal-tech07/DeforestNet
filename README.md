@@ -56,10 +56,12 @@ cd DeforestNet
 # 2. Create virtual environment
 python -m venv .venv
 .venv\Scripts\activate        # Windows
-# source .venv/bin/activate   # Linux/Mac
+source .venv/bin/activate   # Linux/Mac
 
 # 3. Install dependencies
-pip install -r requirements.txt
+pip install -r requirements.txt  # Windows
+pip3 install -r requirements.txt  # Mac
+
 
 # 4. Run end-to-end demo (verifies all 12 components)
 python run_demo.py --quick
