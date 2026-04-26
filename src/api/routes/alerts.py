@@ -19,6 +19,11 @@ def get_alerts():
     Query params:
         status: Filter by status (pending, sent, acknowledged, resolved)
         region: Filter by region
+        severity: Filter by severity (low, medium, high, critical)
+        cause: Filter by cause (Logging, Mining, Agriculture, Fire, Infrastructure)
+        date_from: Filter alerts on or after this date (YYYY-MM-DD)
+        date_to: Filter alerts on or before this date (YYYY-MM-DD)
+        q: Free-text search across alert ID, cause, region, officer, and notes
         limit: Max results (default 100)
         offset: Pagination offset (default 0)
     """
@@ -26,19 +31,40 @@ def get_alerts():
 
     status = request.args.get("status")
     region = request.args.get("region")
+    severity = request.args.get("severity")
+    cause = request.args.get("cause")
+    date_from = request.args.get("date_from")
+    date_to = request.args.get("date_to")
+    search = request.args.get("q") or request.args.get("search")
     limit = request.args.get("limit", 100, type=int)
     offset = request.args.get("offset", 0, type=int)
 
-    if region:
-        alerts = db.get_alerts_by_region(region)
-    else:
-        alerts = db.get_all_alerts(status=status, limit=limit, offset=offset)
+    alerts = db.get_all_alerts(
+        status=status,
+        region=region,
+        severity=severity,
+        cause=cause,
+        date_from=date_from,
+        date_to=date_to,
+        search=search,
+        limit=limit,
+        offset=offset
+    )
 
     return jsonify({
         "alerts": [a.to_dict() for a in alerts],
         "count": len(alerts),
         "limit": limit,
-        "offset": offset
+        "offset": offset,
+        "filters": {
+            "status": status,
+            "region": region,
+            "severity": severity,
+            "cause": cause,
+            "date_from": date_from,
+            "date_to": date_to,
+            "q": search
+        }
     })
 
 

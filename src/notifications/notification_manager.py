@@ -109,6 +109,17 @@ class NotificationManager:
 
         logger.info(f"NotificationManager initialized [{', '.join(status)}]")
 
+    def _resolve_email_recipient(self, officer_email: str = "") -> str:
+        """Resolve the final email recipient with an optional override."""
+        override = os.environ.get("NOTIFICATION_RECIPIENT_EMAIL", "").strip()
+        if override:
+            return override
+        if officer_email:
+            return officer_email
+        if self.email.sender_email:
+            return self.email.sender_email
+        return ""
+
     @property
     def status(self) -> Dict:
         """Get status of all notification tiers."""
@@ -189,7 +200,10 @@ class NotificationManager:
         # Tier 3: Email
         if "email" in use_tiers:
             try:
-                email_result = self.email.send_alert(alert, to_email=officer_email)
+                email_result = self.email.send_alert(
+                    alert,
+                    to_email=self._resolve_email_recipient(officer_email)
+                )
                 result.add_result("email", email_result)
                 logger.info(f"Email: {'OK' if email_result.get('ok') else 'FAILED'}")
             except Exception as e:
@@ -294,7 +308,7 @@ class NotificationManager:
 
     def _try_email(self, alert: Alert, officer_email: str = "", **kwargs) -> Dict:
         """Try sending via Email."""
-        return self.email.send_alert(alert, to_email=officer_email)
+        return self.email.send_alert(alert, to_email=self._resolve_email_recipient(officer_email))
 
     def send_batch_notifications(
         self,
@@ -345,7 +359,7 @@ class NotificationManager:
 
         # Email summary
         if recipient_email or self.email.demo_mode:
-            email_to = recipient_email or "demo@example.com"
+            email_to = recipient_email or self._resolve_email_recipient() or "demo@example.com"
             results["email"] = self.email.send_daily_summary(alerts, email_to)
 
         # Telegram summary

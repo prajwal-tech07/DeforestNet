@@ -171,23 +171,66 @@ class AlertDatabase:
     def get_all_alerts(
         self,
         status: Optional[str] = None,
+        region: Optional[str] = None,
+        severity: Optional[str] = None,
+        cause: Optional[str] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        search: Optional[str] = None,
         limit: int = 100,
         offset: int = 0
     ) -> List[Alert]:
-        """Get all alerts, optionally filtered by status."""
+        """Get all alerts, optionally filtered by alert metadata."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
 
+            conditions = []
+            params = []
+
             if status:
-                cursor.execute(
-                    "SELECT * FROM alerts WHERE status = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?",
-                    (status, limit, offset)
+                conditions.append("status = ?")
+                params.append(status)
+
+            if region:
+                conditions.append("region = ?")
+                params.append(region)
+
+            if severity:
+                conditions.append("severity = ?")
+                params.append(severity)
+
+            if cause:
+                conditions.append("cause = ?")
+                params.append(cause)
+
+            if date_from:
+                conditions.append("date(timestamp) >= date(?)")
+                params.append(date_from)
+
+            if date_to:
+                conditions.append("date(timestamp) <= date(?)")
+                params.append(date_to)
+
+            if search:
+                search_term = f"%{search.strip().lower()}%"
+                conditions.append(
+                    "(" \
+                    "LOWER(alert_id) LIKE ? OR " \
+                    "LOWER(cause) LIKE ? OR " \
+                    "LOWER(region) LIKE ? OR " \
+                    "LOWER(assigned_officer_name) LIKE ? OR " \
+                    "LOWER(notes) LIKE ?" \
+                    ")"
                 )
-            else:
-                cursor.execute(
-                    "SELECT * FROM alerts ORDER BY timestamp DESC LIMIT ? OFFSET ?",
-                    (limit, offset)
-                )
+                params.extend([search_term] * 5)
+
+            query = "SELECT * FROM alerts"
+            if conditions:
+                query += " WHERE " + " AND ".join(conditions)
+            query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?"
+
+            params.extend([limit, offset])
+            cursor.execute(query, tuple(params))
 
             rows = cursor.fetchall()
 
