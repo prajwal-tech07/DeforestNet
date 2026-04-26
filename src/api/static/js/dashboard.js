@@ -4,6 +4,7 @@ let chartsCache = {};
 let dataRefreshInterval = null;
 let map = null;
 let mapMarkers = [];
+let alertSearchTimer = null;
 
 const API_BASE = '/api';
 
@@ -39,6 +40,50 @@ function closeSidebar() {
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('active');
     }
+}
+
+function debouncedLoadAlerts() {
+    clearTimeout(alertSearchTimer);
+    alertSearchTimer = setTimeout(loadAlerts, 250);
+}
+
+function populateAlertFilterOptions(alerts) {
+    const regionFilter = document.getElementById('alertRegionFilter');
+    if (!regionFilter) return;
+
+    const currentRegion = regionFilter.value;
+    const existingRegions = new Set(Array.from(regionFilter.options).map(option => option.value));
+    const regions = [...new Set((alerts || []).map(alert => (alert.region || '').trim()).filter(Boolean))].sort();
+
+    regions.forEach(region => {
+        if (!existingRegions.has(region)) {
+            const option = document.createElement('option');
+            option.value = region;
+            option.textContent = region;
+            regionFilter.appendChild(option);
+        }
+    });
+
+    regionFilter.value = currentRegion;
+}
+
+function resetAlertFilters() {
+    const filterIds = [
+        'alertSearchFilter',
+        'alertStatusFilter',
+        'alertSeverityFilter',
+        'alertCauseFilter',
+        'alertRegionFilter',
+        'alertDateFromFilter',
+        'alertDateToFilter'
+    ];
+
+    filterIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.value = '';
+    });
+
+    loadAlerts();
 }
 
 function toggleSidebar() {
@@ -83,6 +128,7 @@ async function loadDashboardData() {
         const alertsRes = await fetch(`${API_BASE}/alerts`);
         const alertsData = await alertsRes.json();
         const alerts = alertsData.alerts || [];
+        populateAlertFilterOptions(alerts);
         updateRecentAlerts(alerts.slice(0, 5));
 
         // Update badge
@@ -234,13 +280,34 @@ function updateRecentAlerts(alerts) {
 /* ==================== ALERTS PAGE ==================== */
 async function loadAlerts() {
     try {
+        const searchFilter = document.getElementById('alertSearchFilter')?.value.trim() || '';
         const statusFilter = document.getElementById('alertStatusFilter')?.value || '';
+        const severityFilter = document.getElementById('alertSeverityFilter')?.value || '';
+        const causeFilter = document.getElementById('alertCauseFilter')?.value || '';
+        const regionFilter = document.getElementById('alertRegionFilter')?.value || '';
+        const dateFromFilter = document.getElementById('alertDateFromFilter')?.value || '';
+        const dateToFilter = document.getElementById('alertDateToFilter')?.value || '';
+
         let url = `${API_BASE}/alerts`;
-        if (statusFilter) url += `?status=${statusFilter}`;
+
+        const params = new URLSearchParams();
+        if (searchFilter) params.set('q', searchFilter);
+        if (statusFilter) params.set('status', statusFilter);
+        if (severityFilter) params.set('severity', severityFilter);
+        if (causeFilter) params.set('cause', causeFilter);
+        if (regionFilter) params.set('region', regionFilter);
+        if (dateFromFilter) params.set('date_from', dateFromFilter);
+        if (dateToFilter) params.set('date_to', dateToFilter);
+
+        if (params.toString()) {
+            url += `?${params.toString()}`;
+        }
 
         const response = await fetch(url);
         const data = await response.json();
         const alerts = data.alerts || [];
+
+        populateAlertFilterOptions(alerts);
 
         const tbody = document.getElementById('allAlertsBody');
         if (alerts.length === 0) {
@@ -703,6 +770,27 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSystemStatus();
     loadDashboardData();
     dataRefreshInterval = setInterval(updateSystemStatus, 30000);
+
+    const alertFilters = [
+        'alertSearchFilter',
+        'alertStatusFilter',
+        'alertSeverityFilter',
+        'alertCauseFilter',
+        'alertRegionFilter',
+        'alertDateFromFilter',
+        'alertDateToFilter'
+    ];
+
+    alertFilters.forEach(id => {
+        const element = document.getElementById(id);
+        if (!element) return;
+
+        if (id === 'alertSearchFilter') {
+            element.addEventListener('keydown', event => {
+                if (event.key === 'Enter') loadAlerts();
+            });
+        }
+    });
 
     document.getElementById('modalOverlay').addEventListener('click', function(e) {
         if (e.target === this) closeModal();

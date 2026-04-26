@@ -19,6 +19,38 @@ predictions_bp = Blueprint("predictions", __name__)
 _recent_predictions = {}
 
 
+def _send_auto_notification(alert):
+    """Send notification automatically after alert creation."""
+    notif_manager = current_app.config.get("NOTIFICATION_MANAGER")
+    if notif_manager is None:
+        return {
+            "attempted": False,
+            "success": False,
+            "error": "Notification manager not configured",
+            "successful_tiers": [],
+            "failed_tiers": []
+        }
+
+    try:
+        result = notif_manager.send_alert_notification(alert, tiers=["email"])
+        return {
+            "attempted": True,
+            "success": result.success,
+            "successful_tiers": result.successful_tiers,
+            "failed_tiers": result.failed_tiers,
+            "details": result.tier_results
+        }
+    except Exception as e:
+        logger.error(f"Auto-notification failed for alert {alert.alert_id}: {e}")
+        return {
+            "attempted": True,
+            "success": False,
+            "error": str(e),
+            "successful_tiers": [],
+            "failed_tiers": ["email"]
+        }
+
+
 @predictions_bp.route("/analyze", methods=["POST"])
 def analyze_prediction():
     """
@@ -77,11 +109,14 @@ def analyze_prediction():
         "alert": alert.to_dict()
     }
 
+    notification_result = _send_auto_notification(alert)
+
     return jsonify({
         "deforestation_detected": True,
         "alert": alert.to_dict(),
         "prediction_id": pred_id,
-        "prediction_shape": list(prediction.shape)
+        "prediction_shape": list(prediction.shape),
+        "notification": notification_result
     })
 
 
@@ -140,10 +175,13 @@ def demo_prediction():
             "message": "Area too small or confidence too low"
         })
 
+    notification_result = _send_auto_notification(alert)
+
     return jsonify({
         "deforestation_detected": True,
         "alert": alert.to_dict(),
-        "demo": True
+        "demo": True,
+        "notification": notification_result
     })
 
 

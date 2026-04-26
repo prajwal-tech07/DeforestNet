@@ -209,6 +209,12 @@ class EmailNotifier:
             recipient = ""  # Would look up from database
 
         if not recipient:
+            recipient = os.environ.get("NOTIFICATION_RECIPIENT_EMAIL", "").strip()
+
+        if not recipient:
+            recipient = self.sender_email
+
+        if not recipient:
             if self.demo_mode:
                 recipient = "demo@example.com"
             else:
