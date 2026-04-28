@@ -12,7 +12,7 @@ Part 1 of the DeforestNet project has been successfully implemented. This part e
 
 ---
 
-## What Was Implemented
+## What Was Implemented from our side
 
 ### 1. Project Directory Structure
 
