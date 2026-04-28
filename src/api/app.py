@@ -107,7 +107,7 @@ def create_app(testing: bool = False) -> Flask:
 
 
 def _init_services(app: Flask):
-    """Initialize shared services (database, managers)."""
+    """Initialize shared services (database, managers, inference engine)."""
     from src.alerts.database import AlertDatabase
     from src.alerts.alert_manager import AlertManager, AlertGenerator
     from src.notifications.notification_manager import create_notification_manager
@@ -122,11 +122,32 @@ def _init_services(app: Flask):
     notif_manager = create_notification_manager(db=alert_manager.db)
     app.config["NOTIFICATION_MANAGER"] = notif_manager
 
+    # Inference engine (real U-Net model)
+    try:
+        from src.inference.engine import InferenceEngine
+        from configs.config import CHECKPOINTS_DIR
+        checkpoint_path = CHECKPOINTS_DIR / "benchmark" / "best.pt"
+        if checkpoint_path.exists():
+            inference_engine = InferenceEngine(checkpoint_path=checkpoint_path)
+            app.config["INFERENCE_ENGINE"] = inference_engine
+            logger.info(f"Inference engine loaded: {checkpoint_path}")
+        else:
+            app.config["INFERENCE_ENGINE"] = None
+            logger.warning(f"No checkpoint found at {checkpoint_path}, inference engine not loaded")
+    except Exception as e:
+        app.config["INFERENCE_ENGINE"] = None
+        logger.warning(f"Could not load inference engine: {e}")
+
     # Store tier modes for health check
     status = notif_manager.status
     app.config["FCM_MODE"] = status["fcm"]["mode"]
     app.config["TELEGRAM_MODE"] = status["telegram"]["mode"]
     app.config["EMAIL_MODE"] = status["email"]["mode"]
+
+    # Auto-monitoring scheduler
+    from src.api.auto_monitor import AutoMonitor
+    auto_monitor = AutoMonitor(app)
+    app.config["AUTO_MONITOR"] = auto_monitor
 
     logger.info("Services initialized")
 
@@ -138,12 +159,14 @@ def _register_blueprints(app: Flask):
     from src.api.routes.predictions import predictions_bp
     from src.api.routes.notifications import notifications_bp
     from src.api.routes.dashboard import dashboard_bp
+    from src.api.routes.monitoring import monitoring_bp
 
     app.register_blueprint(alerts_bp, url_prefix="/api/alerts")
     app.register_blueprint(officers_bp, url_prefix="/api/officers")
     app.register_blueprint(predictions_bp, url_prefix="/api/predictions")
     app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
     app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
+    app.register_blueprint(monitoring_bp, url_prefix="/api/monitoring")
 
     logger.info("Blueprints registered")
 

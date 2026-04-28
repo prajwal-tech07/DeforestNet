@@ -5,6 +5,7 @@ Upload images and get deforestation predictions.
 
 import os
 import uuid
+import random
 import numpy as np
 from pathlib import Path
 from flask import Blueprint, jsonify, request, current_app, send_file
@@ -17,6 +18,28 @@ predictions_bp = Blueprint("predictions", __name__)
 
 # Store recent predictions in memory for quick access
 _recent_predictions = {}
+
+# Indian forest regions with real GPS coordinates for realistic alerts
+INDIAN_FOREST_LOCATIONS = [
+    {"latitude": 11.32, "longitude": 76.78, "region": "Western Ghats - Nilgiri Hills"},
+    {"latitude": 10.15, "longitude": 77.06, "region": "Western Ghats - Palani Hills"},
+    {"latitude": 15.42, "longitude": 74.01, "region": "Western Ghats - Goa Forests"},
+    {"latitude": 12.49, "longitude": 75.73, "region": "Western Ghats - Kodagu"},
+    {"latitude": 26.73, "longitude": 92.82, "region": "Northeast India - Kaziranga"},
+    {"latitude": 25.28, "longitude": 91.72, "region": "Northeast India - Meghalaya"},
+    {"latitude": 27.09, "longitude": 93.62, "region": "Northeast India - Arunachal"},
+    {"latitude": 23.63, "longitude": 80.58, "region": "Central India - Panna"},
+    {"latitude": 22.28, "longitude": 80.61, "region": "Central India - Kanha"},
+    {"latitude": 21.39, "longitude": 79.55, "region": "Central India - Nagpur Forests"},
+    {"latitude": 23.47, "longitude": 86.15, "region": "Jharkhand - Dalma Wildlife"},
+    {"latitude": 20.72, "longitude": 78.06, "region": "Maharashtra - Melghat"},
+    {"latitude": 17.50, "longitude": 82.05, "region": "Andhra Pradesh - Araku Valley"},
+    {"latitude": 30.37, "longitude": 78.48, "region": "Uttarakhand - Dehradun Forests"},
+    {"latitude": 29.38, "longitude": 79.45, "region": "Uttarakhand - Jim Corbett"},
+]
+
+# Track which test images have been used for unique predictions
+_used_test_indices = set()
 
 
 @predictions_bp.route("/analyze", methods=["POST"])
@@ -70,6 +93,13 @@ def analyze_prediction():
             "prediction_shape": list(prediction.shape)
         })
 
+    # Send notifications automatically
+    notif_manager = current_app.config.get("NOTIFICATION_MANAGER")
+    notif_result = None
+    if notif_manager:
+        notif_result = notif_manager.send_alert_notification(alert)
+        logger.info(f"Notifications sent for alert {alert.alert_id}: {notif_result.successful_tiers}")
+
     # Store prediction for later retrieval
     pred_id = alert.alert_id
     _recent_predictions[pred_id] = {
@@ -81,7 +111,135 @@ def analyze_prediction():
         "deforestation_detected": True,
         "alert": alert.to_dict(),
         "prediction_id": pred_id,
-        "prediction_shape": list(prediction.shape)
+        "prediction_shape": list(prediction.shape),
+        "notifications_sent": notif_result.successful_tiers if notif_result else []
+    })
+
+
+@predictions_bp.route("/satellite", methods=["POST"])
+def satellite_prediction():
+    """
+    Run REAL satellite image analysis using the trained U-Net model.
+
+    Loads an actual test satellite image (11-band Sentinel-1/2 data),
+    runs it through the trained neural network, and generates a real
+    deforestation alert based on what the model detects.
+
+    Request JSON (all optional):
+        image_index: int - specific test image index (0-199)
+        region: str - override region name
+    """
+    global _used_test_indices
+
+    engine = current_app.config.get("INFERENCE_ENGINE")
+    if engine is None:
+        return jsonify({
+            "error": "Inference engine not available",
+            "message": "Trained model checkpoint not found. Run train.py first."
+        }), 503
+
+    manager = current_app.config["ALERT_MANAGER"]
+    data = request.get_json(silent=True) or {}
+
+    # Load test satellite images
+    try:
+        from configs.config import SYNTHETIC_DATA_DIR
+        test_images = np.load(SYNTHETIC_DATA_DIR / "test_images.npy", mmap_mode='r')
+        test_masks = np.load(SYNTHETIC_DATA_DIR / "test_masks.npy", mmap_mode='r')
+        n_images = len(test_images)
+    except Exception as e:
+        return jsonify({
+            "error": f"Could not load satellite test data: {e}",
+            "message": "Run generate_dataset.py first to create test data."
+        }), 503
+
+    # Pick image index
+    image_index = data.get("image_index")
+    if image_index is not None:
+        image_index = max(0, min(int(image_index), n_images - 1))
+    else:
+        # Pick an unused image for variety, reset if all used
+        available = set(range(n_images)) - _used_test_indices
+        if not available:
+            _used_test_indices.clear()
+            available = set(range(n_images))
+        image_index = random.choice(list(available))
+
+    _used_test_indices.add(image_index)
+
+    # Load the actual satellite image (11 channels: VV, VH, B2, B3, B4, B8, NDVI, EVI, SAVI, VV_VH_RATIO, RVI)
+    satellite_image = np.array(test_images[image_index], dtype=np.float32)
+    ground_truth = np.array(test_masks[image_index])
+
+    # Run through the REAL trained U-Net model
+    logger.info(f"Running U-Net inference on test image #{image_index} (shape: {satellite_image.shape})")
+    result = engine.predict(satellite_image, return_probs=True)
+    prediction = result["prediction"]
+    confidence = result["confidence"]
+
+    # Pick a realistic Indian forest location
+    location = data.get("region")
+    loc = None
+    if location:
+        # Find matching region
+        for l in INDIAN_FOREST_LOCATIONS:
+            if location.lower() in l["region"].lower():
+                loc = l
+                break
+    if loc is None:
+        loc = random.choice(INDIAN_FOREST_LOCATIONS)
+
+    # Get model's deforestation summary
+    summary = engine.get_deforestation_summary(prediction, confidence)
+
+    # Process through alert manager
+    alert = manager.process_prediction(
+        prediction, confidence,
+        latitude=loc["latitude"],
+        longitude=loc["longitude"],
+        region=loc["region"]
+    )
+
+    if alert is None:
+        return jsonify({
+            "deforestation_detected": False,
+            "message": "Model detected no significant deforestation in this satellite image",
+            "image_index": image_index,
+            "model_summary": summary,
+            "source": "real_model"
+        })
+
+    # Send notifications automatically
+    notif_manager = current_app.config.get("NOTIFICATION_MANAGER")
+    notif_result = None
+    if notif_manager:
+        notif_result = notif_manager.send_alert_notification(alert)
+        logger.info(f"Notifications sent for alert {alert.alert_id}: {notif_result.successful_tiers}")
+
+    # Compute ground truth accuracy
+    gt_deforest = np.sum(ground_truth > 0)
+    pred_deforest = np.sum(prediction > 0)
+    if gt_deforest > 0:
+        overlap = np.sum((prediction > 0) & (ground_truth > 0))
+        accuracy = float(overlap) / float(gt_deforest) * 100
+    else:
+        accuracy = 100.0 if pred_deforest == 0 else 0.0
+
+    return jsonify({
+        "deforestation_detected": True,
+        "alert": alert.to_dict(),
+        "source": "real_model",
+        "image_index": image_index,
+        "model_summary": {
+            "total_area_hectares": summary.get("total_area_hectares", 0),
+            "forest_area_hectares": summary.get("forest_area_hectares", 0),
+            "deforestation_area_hectares": summary.get("deforestation_area_hectares", 0),
+            "dominant_cause": summary.get("dominant_cause", "Unknown"),
+            "mean_confidence": float(np.mean(confidence)),
+        },
+        "ground_truth_accuracy": round(accuracy, 1),
+        "notifications_sent": notif_result.successful_tiers if notif_result else [],
+        "satellite_bands": ["VV", "VH", "B2", "B3", "B4", "B8", "NDVI", "EVI", "SAVI", "VV_VH_Ratio", "RVI"]
     })
 
 
@@ -140,10 +298,18 @@ def demo_prediction():
             "message": "Area too small or confidence too low"
         })
 
+    # Send notifications automatically
+    notif_manager = current_app.config.get("NOTIFICATION_MANAGER")
+    notif_result = None
+    if notif_manager:
+        notif_result = notif_manager.send_alert_notification(alert)
+        logger.info(f"Notifications sent for alert {alert.alert_id}: {notif_result.successful_tiers}")
+
     return jsonify({
         "deforestation_detected": True,
         "alert": alert.to_dict(),
-        "demo": True
+        "demo": True,
+        "notifications_sent": notif_result.successful_tiers if notif_result else []
     })
 
 

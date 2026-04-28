@@ -85,8 +85,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
                 Refresh
             </button>
-            <button class="btn btn-sm btn-primary" onclick="generateDemoPrediction()">
-                + New Prediction
+            <button class="btn btn-sm btn-outline" onclick="generateDemoPrediction()">
+                + Demo Prediction
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="switchPage('predictions')" style="background:#22c55e;">
+                Analyze Satellite Image
             </button>
         </div>
     </header>
@@ -138,6 +141,55 @@
                 <div class="stat-info">
                     <span class="stat-value" id="avgConfidence">--</span>
                     <span class="stat-label">Avg Confidence</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auto-Monitoring Panel -->
+        <div class="table-card" style="margin-bottom:24px; border: 1px solid #1e40af;">
+            <div class="table-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 class="table-title" style="margin:0;">
+                        Automatic Satellite Monitoring
+                        <span id="monitorBadge" style="font-size:11px; padding:2px 8px; border-radius:4px; margin-left:8px; background:#ef4444; color:white;">STOPPED</span>
+                    </h3>
+                    <p style="color:#94a3b8; font-size:12px; margin:4px 0 0 0;">
+                        Like real deployment — AI automatically scans satellite images, detects deforestation, and sends alerts without any button click
+                    </p>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <select id="monitorInterval" style="background:#1e293b; color:white; border:1px solid #334155; padding:6px 10px; border-radius:6px; font-size:12px;">
+                        <option value="60">Every 1 min</option>
+                        <option value="120" selected>Every 2 min</option>
+                        <option value="300">Every 5 min</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary" id="monitorToggleBtn" onclick="toggleMonitoring()" style="background:#22c55e; min-width:140px;">
+                        Start Monitoring
+                    </button>
+                </div>
+            </div>
+            <div id="monitorStats" style="display:none; padding:16px; padding-top:0;">
+                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:12px;">
+                    <div style="background:#0f172a; padding:10px; border-radius:6px; text-align:center;">
+                        <div style="font-size:20px; font-weight:700; color:#60a5fa;" id="monScans">0</div>
+                        <div style="font-size:11px; color:#94a3b8;">Images Scanned</div>
+                    </div>
+                    <div style="background:#0f172a; padding:10px; border-radius:6px; text-align:center;">
+                        <div style="font-size:20px; font-weight:700; color:#ef4444;" id="monAlerts">0</div>
+                        <div style="font-size:11px; color:#94a3b8;">Alerts Generated</div>
+                    </div>
+                    <div style="background:#0f172a; padding:10px; border-radius:6px; text-align:center;">
+                        <div style="font-size:20px; font-weight:700; color:#22c55e;" id="monNotifs">0</div>
+                        <div style="font-size:11px; color:#94a3b8;">Notifications Sent</div>
+                    </div>
+                    <div style="background:#0f172a; padding:10px; border-radius:6px; text-align:center;">
+                        <div style="font-size:20px; font-weight:700; color:#f59e0b;" id="monInterval">120s</div>
+                        <div style="font-size:11px; color:#94a3b8;">Scan Interval</div>
+                    </div>
+                </div>
+                <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;"><strong>Recent Scan Log:</strong></div>
+                <div id="monitorLog" style="background:#0f172a; padding:10px; border-radius:6px; font-family:monospace; font-size:11px; max-height:200px; overflow-y:auto; color:#94a3b8;">
+                    Waiting for first scan...
                 </div>
             </div>
         </div>
@@ -315,8 +367,25 @@
     <!-- ==================== PREDICTIONS PAGE ==================== -->
     <div class="page" id="page-predictions">
         <div class="prediction-panel">
-            <div class="predict-form-card">
-                <h3>Generate Prediction</h3>
+            <!-- REAL SATELLITE ANALYSIS -->
+            <div class="predict-form-card" style="border: 2px solid #22c55e; position: relative;">
+                <div style="position:absolute; top:-10px; left:16px; background:#22c55e; color:#000; font-size:11px; font-weight:700; padding:2px 10px; border-radius:4px;">REAL AI MODEL</div>
+                <h3 style="color:#22c55e;">Analyze Satellite Image</h3>
+                <p style="color:#94a3b8; font-size:13px; margin-bottom:16px;">
+                    Picks a real 11-band Sentinel-1/2 test image, runs it through the <strong>trained U-Net neural network</strong>,
+                    detects deforestation cause, generates alert, sends notifications to officers, and pins location on the map.
+                </p>
+                <div style="background:#0f172a; padding:10px; border-radius:6px; margin-bottom:16px; font-size:12px; color:#60a5fa;">
+                    <strong>Pipeline:</strong> Satellite Image (11 bands) &rarr; U-Net Model &rarr; Deforestation Map &rarr; Alert &rarr; Telegram + Email &rarr; Map Pin
+                </div>
+                <button class="btn btn-primary btn-lg" onclick="runSatellitePrediction()" id="runSatelliteBtn" style="background:#22c55e; width:100%;">
+                    Analyze Satellite Image (Real AI)
+                </button>
+            </div>
+
+            <!-- MANUAL DEMO PREDICTION -->
+            <div class="predict-form-card" style="opacity: 0.7;">
+                <h3>Manual Demo Prediction <span style="font-size:11px; color:#94a3b8;">(random data, no model)</span></h3>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Cause</label>
@@ -351,14 +420,14 @@
                     </div>
                 </div>
                 <button class="btn btn-primary btn-lg" onclick="runPrediction()" id="runPredBtn">
-                    Run Prediction
+                    Run Demo Prediction
                 </button>
             </div>
 
             <div class="predict-result-card" id="predResultCard">
                 <h3>Prediction Result</h3>
                 <div id="predResultContent" class="pred-result-content">
-                    <p class="empty-state">Run a prediction to see results</p>
+                    <p class="empty-state">Click "Analyze Satellite Image" to run real AI analysis</p>
                 </div>
             </div>
         </div>

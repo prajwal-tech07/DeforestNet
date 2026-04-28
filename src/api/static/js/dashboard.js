@@ -2,10 +2,112 @@
 let currentPage = 'dashboard';
 let chartsCache = {};
 let dataRefreshInterval = null;
+let monitorPollInterval = null;
 let map = null;
 let mapMarkers = [];
 
 const API_BASE = '/api';
+
+/* ==================== AUTO-MONITORING ==================== */
+async function toggleMonitoring() {
+    const btn = document.getElementById('monitorToggleBtn');
+    const badge = document.getElementById('monitorBadge');
+
+    try {
+        const statusRes = await fetch(`${API_BASE}/monitoring/status`);
+        const status = await statusRes.json();
+
+        if (status.running) {
+            // Stop
+            const res = await fetch(`${API_BASE}/monitoring/stop`, { method: 'POST' });
+            const result = await res.json();
+            btn.textContent = 'Start Monitoring';
+            btn.style.background = '#22c55e';
+            badge.textContent = 'STOPPED';
+            badge.style.background = '#ef4444';
+            if (monitorPollInterval) clearInterval(monitorPollInterval);
+            monitorPollInterval = null;
+            toast('Automatic monitoring stopped', 'info');
+        } else {
+            // Start
+            const interval = parseInt(document.getElementById('monitorInterval').value) || 120;
+            const res = await fetch(`${API_BASE}/monitoring/start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ interval })
+            });
+            const result = await res.json();
+            btn.textContent = 'Stop Monitoring';
+            btn.style.background = '#ef4444';
+            badge.textContent = 'RUNNING';
+            badge.style.background = '#22c55e';
+            document.getElementById('monitorStats').style.display = 'block';
+            toast(`Automatic monitoring started — scanning every ${interval}s`, 'success');
+
+            // Start polling for status updates
+            pollMonitorStatus();
+            monitorPollInterval = setInterval(pollMonitorStatus, 5000);
+        }
+    } catch (error) {
+        console.error('Monitor toggle error:', error);
+        toast('Error toggling monitoring', 'error');
+    }
+}
+
+async function pollMonitorStatus() {
+    try {
+        const res = await fetch(`${API_BASE}/monitoring/status`);
+        const status = await res.json();
+
+        const badge = document.getElementById('monitorBadge');
+        const btn = document.getElementById('monitorToggleBtn');
+
+        if (status.running) {
+            badge.textContent = 'RUNNING';
+            badge.style.background = '#22c55e';
+            btn.textContent = 'Stop Monitoring';
+            btn.style.background = '#ef4444';
+            document.getElementById('monitorStats').style.display = 'block';
+        } else {
+            badge.textContent = 'STOPPED';
+            badge.style.background = '#ef4444';
+            btn.textContent = 'Start Monitoring';
+            btn.style.background = '#22c55e';
+        }
+
+        document.getElementById('monScans').textContent = status.total_scans || 0;
+        document.getElementById('monAlerts').textContent = status.alerts_generated || 0;
+        document.getElementById('monNotifs').textContent = status.notifications_sent || 0;
+        document.getElementById('monInterval').textContent = (status.interval_seconds || 120) + 's';
+
+        // Update scan log
+        const scans = status.recent_scans || [];
+        if (scans.length > 0) {
+            const logDiv = document.getElementById('monitorLog');
+            let html = '';
+            for (const scan of scans.reverse()) {
+                const time = new Date(scan.timestamp).toLocaleTimeString();
+                if (scan.deforestation_detected) {
+                    html += `<div style="color:#ef4444; margin-bottom:4px;">
+                        [${time}] ALERT #${scan.scan_number}: <strong>${scan.cause}</strong> detected in ${scan.region}
+                        — ${scan.area_hectares?.toFixed(1) || '?'} ha, ${scan.severity}
+                        ${scan.notifications ? '→ Sent via: ' + scan.notifications.join(', ') : ''}
+                    </div>`;
+                } else {
+                    html += `<div style="margin-bottom:4px;">
+                        [${time}] Scan #${scan.scan_number}: No deforestation — ${scan.region} (image #${scan.image_index})
+                    </div>`;
+                }
+            }
+            logDiv.innerHTML = html;
+
+            // Also refresh dashboard data when new scans come in
+            if (currentPage === 'dashboard') loadDashboardData();
+        }
+    } catch (error) {
+        console.error('Monitor status poll error:', error);
+    }
+}
 
 /* ==================== PAGE SWITCHING ==================== */
 function switchPage(page) {
@@ -302,6 +404,9 @@ async function initializeMap() {
             maxZoom: 19
         }).addTo(map);
     }
+
+    // Fix tiles not loading when map was initialized while hidden
+    setTimeout(() => { map.invalidateSize(); }, 200);
 
     // Reload markers
     try {
@@ -626,6 +731,116 @@ async function generateDemoPrediction() {
     }
 }
 
+async function runSatellitePrediction() {
+    const btn = document.getElementById('runSatelliteBtn');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.textContent = 'Analyzing Satellite Image...';
+
+    try {
+        const response = await fetch(`${API_BASE}/predictions/satellite`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        });
+
+        const result = await response.json();
+
+        if (result.error) {
+            document.getElementById('predResultContent').innerHTML = `
+                <div style="text-align:center; padding:32px; color:#ef4444;">
+                    <p style="font-size:16px;">${result.error}</p>
+                    <p style="font-size:12px; color:#94a3b8;">${result.message || ''}</p>
+                </div>`;
+            toast(result.error, 'error');
+            return;
+        }
+
+        if (result.deforestation_detected && result.alert) {
+            const alert = result.alert;
+            const summary = result.model_summary || {};
+            const notifs = result.notifications_sent || [];
+            const content = `
+                <div style="background:#1e293b; padding:16px; border-radius:8px;">
+                    <div style="margin-bottom:12px; text-align:center;">
+                        <span style="color:#ef4444; font-size:18px; font-weight:700;">U-Net Model: Deforestation Detected!</span>
+                        <div style="color:#94a3b8; font-size:11px; margin-top:4px;">
+                            Source: Real satellite image #${result.image_index} &bull; 11-band Sentinel-1/2 data &bull;
+                            Ground truth accuracy: <strong style="color:#22c55e;">${result.ground_truth_accuracy}%</strong>
+                        </div>
+                    </div>
+                    <div style="background:#0f172a; padding:10px; border-radius:6px; margin-bottom:12px; font-size:12px; color:#60a5fa; border:1px solid #1e40af;">
+                        <strong>Satellite Bands Used:</strong> ${(result.satellite_bands || []).join(', ')}
+                    </div>
+                    <div style="background:#334155; padding:12px; border-radius:6px; margin-bottom:12px;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;">
+                            <div>
+                                <span style="color:#94a3b8;">Cause (AI Detected)</span><br>
+                                <strong style="font-size:16px; color:#f59e0b;">${alert.cause}</strong>
+                            </div>
+                            <div>
+                                <span style="color:#94a3b8;">Severity</span><br>
+                                <strong style="font-size:16px;" class="severity-badge severity-${alert.severity}">${alert.severity}</strong>
+                            </div>
+                            <div>
+                                <span style="color:#94a3b8;">Affected Area</span><br>
+                                <strong style="font-size:16px;">${alert.affected_area_hectares.toFixed(2)} ha</strong>
+                            </div>
+                            <div>
+                                <span style="color:#94a3b8;">AI Confidence</span><br>
+                                <strong style="font-size:16px;">${(alert.confidence * 100).toFixed(1)}%</strong>
+                            </div>
+                            <div>
+                                <span style="color:#94a3b8;">GPS Location</span><br>
+                                <strong>${(alert.latitude || 0).toFixed(4)}, ${(alert.longitude || 0).toFixed(4)}</strong>
+                            </div>
+                            <div>
+                                <span style="color:#94a3b8;">Forest Region</span><br>
+                                <strong>${alert.region}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background:#334155; padding:10px; border-radius:6px; margin-bottom:12px;">
+                        <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;"><strong>Model Analysis Summary</strong></div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; font-size:12px;">
+                            <div>Total: <strong>${(summary.total_area_hectares || 0).toFixed(1)} ha</strong></div>
+                            <div>Forest: <strong style="color:#22c55e;">${(summary.forest_area_hectares || 0).toFixed(1)} ha</strong></div>
+                            <div>Deforested: <strong style="color:#ef4444;">${(summary.deforestation_area_hectares || 0).toFixed(1)} ha</strong></div>
+                        </div>
+                    </div>
+                    ${notifs.length > 0 ? `
+                    <div style="background:#064e3b; padding:8px 12px; border-radius:6px; margin-bottom:12px; font-size:12px; color:#34d399;">
+                        Notifications sent via: <strong>${notifs.join(', ')}</strong>
+                    </div>` : ''}
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-primary" onclick="switchPage('alerts')">View in Alerts</button>
+                        <button class="btn btn-outline" onclick="switchPage('map')">View on Map</button>
+                        <button class="btn btn-outline" onclick="runSatellitePrediction()">Analyze Another</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('predResultContent').innerHTML = content;
+            toast('Real satellite analysis complete - Alert & Notifications sent!', 'success');
+            initializeMap();
+        } else {
+            document.getElementById('predResultContent').innerHTML = `
+                <div style="text-align:center; padding:32px; color:#94a3b8;">
+                    <p style="font-size:16px;">Model detected no significant deforestation</p>
+                    <p style="font-size:12px;">Image #${result.image_index} - ${result.message || 'Forest appears healthy'}</p>
+                    <button class="btn btn-outline" style="margin-top:12px;" onclick="runSatellitePrediction()">Try Another Image</button>
+                </div>`;
+            toast('Model: No deforestation in this satellite image', 'info');
+        }
+
+    } catch (error) {
+        console.error('Error running satellite prediction:', error);
+        toast('Error running satellite analysis', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Analyze Satellite Image (Real AI)';
+    }
+}
+
 /* ==================== MODAL ==================== */
 function showModal(title, content) {
     document.getElementById('modalTitle').textContent = title;
@@ -702,6 +917,7 @@ function refreshData() {
 document.addEventListener('DOMContentLoaded', () => {
     updateSystemStatus();
     loadDashboardData();
+    pollMonitorStatus();
     dataRefreshInterval = setInterval(updateSystemStatus, 30000);
 
     document.getElementById('modalOverlay').addEventListener('click', function(e) {

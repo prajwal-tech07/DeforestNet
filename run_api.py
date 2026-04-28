@@ -15,6 +15,16 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+# Load .env before anything else
+try:
+    from dotenv import load_dotenv
+    env_path = PROJECT_ROOT / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+        print(f"  Loaded .env configuration")
+except ImportError:
+    pass
+
 from src.api.app import create_app
 from configs.config import API_CONFIG
 

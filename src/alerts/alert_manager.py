@@ -3,6 +3,7 @@ DeforestNet - Alert Manager
 Core alert generation and management system.
 """
 
+import os
 import numpy as np
 from datetime import datetime
 from pathlib import Path
@@ -300,29 +301,33 @@ class AlertManager:
 
     def setup_demo_officers(self):
         """Create demo officers for testing."""
+        # Read Telegram chat ID and email from environment
+        tg_chat_id = os.environ.get("TELEGRAM_CHAT_ID", "")
+        officer_email = os.environ.get("EMAIL_SENDER", "demo@example.com")
+
         demo_officers = [
             Officer(
                 officer_id="OFF001",
                 name="Rajesh Kumar",
                 phone="+919876543210",
-                email="rajesh@forest.gov.in",
-                telegram_chat_id="",
+                email=officer_email,
+                telegram_chat_id=tg_chat_id,
                 region="Western Ghats"
             ),
             Officer(
                 officer_id="OFF002",
                 name="Priya Singh",
                 phone="+919876543211",
-                email="priya@forest.gov.in",
-                telegram_chat_id="",
+                email=officer_email,
+                telegram_chat_id=tg_chat_id,
                 region="Northeast India"
             ),
             Officer(
                 officer_id="OFF003",
                 name="Amit Patel",
                 phone="+919876543212",
-                email="amit@forest.gov.in",
-                telegram_chat_id="",
+                email=officer_email,
+                telegram_chat_id=tg_chat_id,
                 region="Central India"
             ),
         ]

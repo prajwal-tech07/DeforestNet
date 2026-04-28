@@ -178,14 +178,14 @@ SYNTHETIC_CONFIG = {
 # ============================================================
 ALERT_CONFIG = {
     "min_confidence": 0.7,           # Minimum confidence to trigger alert
-    "min_affected_area": 0.5,        # Minimum hectares to trigger alert
+    "min_affected_area": 5.0,        # Minimum hectares to trigger alert
     "pixel_to_hectare": 0.01,        # 10m resolution: 100 pixels = 1 hectare
     "alert_cooldown_hours": 6,       # Don't re-alert same location within hours
     "severity_thresholds": {
-        "low": 0.5,      # < 0.5 hectares
-        "medium": 2.0,   # 0.5 - 2.0 hectares
-        "high": 5.0,     # 2.0 - 5.0 hectares
-        "critical": 10.0  # > 5.0 hectares
+        "low": 10.0,       # 5 - 10 hectares
+        "medium": 50.0,    # 10 - 50 hectares
+        "high": 150.0,     # 50 - 150 hectares
+        "critical": 300.0  # > 150 hectares (massive clearing)
     }
 }
 

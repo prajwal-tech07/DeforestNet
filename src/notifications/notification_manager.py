@@ -408,9 +408,10 @@ class NotificationManager:
         }
 
         # Test Telegram
+        tg_chat_id = os.environ.get("TELEGRAM_CHAT_ID", "test_chat")
         results["telegram"] = {
             "configured": self.telegram.is_configured,
-            "test": self.telegram.send_text("test_chat", "Testing Telegram")
+            "test": self.telegram.send_text(tg_chat_id, "DeforestNet: Telegram notification test successful!")
         }
 
         # Test Email
