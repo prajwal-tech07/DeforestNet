@@ -62,9 +62,11 @@ source .venv/bin/activate   # Linux/Mac
 pip install -r requirements.txt  # Windows
 pip3 install -r requirements.txt  # Mac
 
-
 # 4. Run end-to-end demo (verifies all 12 components)
 python run_demo.py --quick
+
+# API endpoint test suite
+python test_all_endpoints.py
 
 # 5. Start the web dashboard
 python run_api.py
