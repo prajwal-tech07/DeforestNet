@@ -4,7 +4,7 @@
 
 ## What Was Built
 
-A complete **end-to-end integration demo** (`run_demo.py`) that exercises every component of the DeforestNet system in sequence, plus comprehensive fixes to the web dashboard.
+A completed **end-to-end integration demo** (`run_demo.py`) that exercises every component of the DeforestNet system in sequence, plus comprehensive fixes to the web dashboard.
 
 ## Bugs Found & Fixed
 

@@ -19,7 +19,7 @@ A professional, modern **dark-themed web dashboard** for the DeforestNet monitor
 
 ## UI Design
 
-- **Dark Theme**: Deep navy/slate color palette (#0f172a, #1e293b, #334155)
+- **Complete Dark Theme**: Deep navy/slate color palette (#0f172a, #1e293b, #334155)
 - **Accent Color**: Emerald green (#10b981) for primary actions
 - **Responsive**: Full mobile/tablet/desktop support (3 breakpoint media queries)
 - **Animations**: Fade-in page transitions, hover effects, slide-in toasts
