@@ -6,7 +6,7 @@
 
 ---
 
-## Table of Contents
+## Table of the Contents
 
 1. [Sentinel-2 MSI Optical Bands](#1-sentinel-2-msi-optical-bands)
 2. [Sentinel-1 C-SAR Bands](#2-sentinel-1-c-sar-bands)
