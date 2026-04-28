@@ -57,7 +57,7 @@ DeforestNet is a **12-component AI system** for satellite-based deforestation de
 - Per-class metrics show which deforestation types are easiest/hardest to detect
 
 **What we added:**
-- `benchmark.py` -- one-command benchmark that trains, evaluates, and generates everything
+- `benchmark.py` -- one-command benchmark that trains, evaluates, and generatinng everything
 - `outputs/benchmark/training_curves.png` -- loss, accuracy, IoU across epochs
 - `outputs/benchmark/confusion_matrix.png` -- normalized confusion matrix + per-class accuracy
 - `outputs/benchmark/per_class_metrics.png` -- IoU/Dice/Precision/Recall/F1 per class
