@@ -159,8 +159,11 @@ DATA_SPLIT = {
 RANDOM_SEED = 42
 
 # Device configuration
-import torch
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+try:
+    import torch
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+except (ImportError, OSError):
+    DEVICE = "cpu"
 
 # ============================================================
 # SYNTHETIC DATA GENERATION
@@ -222,9 +225,9 @@ NOTIFICATION_CONFIG = {
 # API CONFIGURATION
 # ============================================================
 API_CONFIG = {
-    "host": "0.0.0.0",
-    "port": 5000,
-    "debug": True,
+    "host": os.environ.get("API_HOST", "0.0.0.0"),
+    "port": int(os.environ.get("PORT", os.environ.get("API_PORT", 5000))),
+    "debug": os.environ.get("API_DEBUG", "false").lower() == "true",
     "max_content_length": 50 * 1024 * 1024  # 50 MB max upload
 }
 

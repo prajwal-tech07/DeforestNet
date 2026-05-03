@@ -1,10 +1,12 @@
 # ============================================================
-# DeforestNet - Requirements (100% Free & Open Source)
+# DeforestNet - Requirements for Render.com Deployment
+# CPU-only PyTorch to keep deployment size manageable
 # ============================================================
 
-# Core ML/DL
-torch>=2.0.0
-torchvision>=0.15.0
+# Core ML/DL (CPU-only - MUCH smaller than GPU version)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.2.0+cpu
+torchvision==0.17.0+cpu
 
 # Data Processing
 numpy>=1.24.0
@@ -41,15 +43,3 @@ tqdm>=4.65.0
 
 # Production WSGI Server
 gunicorn>=21.2.0
-
-# ============================================================
-# Built-in (no install needed):
-#   sqlite3    - Database
-#   smtplib    - Email/Gmail SMTP
-#   json       - JSON parsing
-#   logging    - Logging framework
-# ============================================================
-# Optional (for production):
-#   firebase-admin>=6.0.0   - Firebase FCM push notifications
-#   python-telegram-bot>=20.0 - Alternative Telegram library
-# ============================================================
