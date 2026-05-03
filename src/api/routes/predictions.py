@@ -141,16 +141,32 @@ def satellite_prediction():
     manager = current_app.config["ALERT_MANAGER"]
     data = request.get_json(silent=True) or {}
 
-    # Load test satellite images
+    # Load test satellite images (or generate on-the-fly for deployment)
     try:
         from configs.config import SYNTHETIC_DATA_DIR
-        test_images = np.load(SYNTHETIC_DATA_DIR / "test_images.npy", mmap_mode='r')
-        test_masks = np.load(SYNTHETIC_DATA_DIR / "test_masks.npy", mmap_mode='r')
+        test_img_path = SYNTHETIC_DATA_DIR / "test_images.npy"
+        test_mask_path = SYNTHETIC_DATA_DIR / "test_masks.npy"
+
+        if test_img_path.exists() and test_mask_path.exists():
+            test_images = np.load(test_img_path, mmap_mode='r')
+            test_masks = np.load(test_mask_path, mmap_mode='r')
+        else:
+            # Generate synthetic test data on-the-fly (for deployment without pre-generated data)
+            logger.info("Generating synthetic satellite test data on-the-fly...")
+            from src.data.synthetic_generator import SyntheticDataGenerator
+            generator = SyntheticDataGenerator(seed=42)
+            test_images, test_masks = generator.generate_dataset(20)
+            # Cache to disk for subsequent requests
+            SYNTHETIC_DATA_DIR.mkdir(parents=True, exist_ok=True)
+            np.save(test_img_path, test_images)
+            np.save(test_mask_path, test_masks)
+            logger.info(f"Generated and cached {len(test_images)} test images")
+
         n_images = len(test_images)
     except Exception as e:
         return jsonify({
             "error": f"Could not load satellite test data: {e}",
-            "message": "Run generate_dataset.py first to create test data."
+            "message": "Test data generation failed."
         }), 503
 
     # Pick image index

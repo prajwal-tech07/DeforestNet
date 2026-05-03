@@ -132,8 +132,11 @@ def _init_services(app: Flask):
             app.config["INFERENCE_ENGINE"] = inference_engine
             logger.info(f"Inference engine loaded: {checkpoint_path}")
         else:
-            app.config["INFERENCE_ENGINE"] = None
-            logger.warning(f"No checkpoint found at {checkpoint_path}, inference engine not loaded")
+            # No checkpoint available — use an untrained model so the full
+            # pipeline (inference → alert → notification → map) still works
+            inference_engine = InferenceEngine()  # fresh untrained model
+            app.config["INFERENCE_ENGINE"] = inference_engine
+            logger.info("Inference engine loaded with untrained model (demo mode)")
     except Exception as e:
         app.config["INFERENCE_ENGINE"] = None
         logger.warning(f"Could not load inference engine: {e}")
