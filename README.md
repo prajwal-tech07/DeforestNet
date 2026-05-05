@@ -270,6 +270,9 @@ python run_demo.py --api-only
 
 # API endpoint test suite
 python test_all_endpoints.py
+
+# Start the web dashboard
+python run_api.py
 ```
 
 ### Demo Output
