@@ -5,6 +5,8 @@ let dataRefreshInterval = null;
 let monitorPollInterval = null;
 let map = null;
 let mapMarkers = [];
+let latestPredictionAlert = null;
+let focusOnLatest = false;
 
 const API_BASE = '/api';
 
@@ -408,7 +410,6 @@ async function initializeMap() {
     // Fix tiles not loading when map was initialized while hidden
     setTimeout(() => { map.invalidateSize(); }, 200);
 
-    // Reload markers
     try {
         const response = await fetch(`${API_BASE}/alerts`);
         const data = await response.json();
@@ -418,36 +419,88 @@ async function initializeMap() {
         mapMarkers.forEach(marker => map.removeLayer(marker));
         mapMarkers = [];
 
+        let latestMarker = null;
+
         alerts.forEach(alert => {
+            const isLatest = latestPredictionAlert && alert.alert_id === latestPredictionAlert.alert_id;
+
             let color = '#facc15';
             if (alert.severity === 'medium') color = '#f97316';
             else if (alert.severity === 'high') color = '#ef4444';
             else if (alert.severity === 'critical') color = '#7f1d1d';
 
-            const marker = L.circleMarker([alert.latitude || 0, alert.longitude || 0], {
-                radius: 8,
-                fillColor: color,
-                color: '#000',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
-            }).addTo(map);
+            const lat = alert.latitude || 0;
+            const lon = alert.longitude || 0;
+            let marker;
+
+            if (isLatest) {
+                // Pulsing animated icon for the latest prediction
+                const pulseIcon = L.divIcon({
+                    className: '',
+                    html: `<div class="map-pulse-container">
+                               <div class="map-pulse-ring" style="border-color:${color};"></div>
+                               <div class="map-pulse-dot" style="background:${color};"></div>
+                           </div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15],
+                    popupAnchor: [0, -18]
+                });
+                marker = L.marker([lat, lon], { icon: pulseIcon }).addTo(map);
+            } else {
+                marker = L.circleMarker([lat, lon], {
+                    radius: 8,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 1.5,
+                    opacity: 0.9,
+                    fillOpacity: 0.8
+                }).addTo(map);
+            }
+
+            // Tooltip: permanent region name label for latest, hover-only for others
+            marker.bindTooltip(alert.region || 'Unknown Region', {
+                permanent: isLatest,
+                direction: 'top',
+                className: isLatest ? 'map-label-latest' : 'map-label',
+                offset: isLatest ? [0, -20] : [0, -8]
+            });
+
+            // Rich popup with full details
+            const ts = alert.timestamp ? new Date(alert.timestamp).toLocaleString() : '';
+            const officerRow = alert.assigned_officer_name
+                ? `<tr><td style="color:#666;padding:3px 0;">Officer</td><td style="font-weight:600;text-align:right;">${alert.assigned_officer_name}</td></tr>`
+                : '';
+            const tsRow = ts ? `<tr><td colspan="2" style="color:#999;font-size:11px;padding-top:6px;border-top:1px solid #eee;margin-top:4px;">${ts}</td></tr>` : '';
 
             marker.bindPopup(`
-                <div style="color: #333;">
-                    <strong>${alert.cause}</strong><br>
-                    Severity: ${alert.severity}<br>
-                    Area: ${alert.affected_area_hectares.toFixed(2)} ha<br>
-                    Confidence: ${(alert.confidence * 100).toFixed(1)}%<br>
-                    Region: ${alert.region || 'N/A'}
+                <div style="min-width:230px;font-family:system-ui,sans-serif;">
+                    <div style="background:${color};color:#fff;padding:8px 12px;margin:-8px -12px 10px;border-radius:4px 4px 0 0;">
+                        <div style="font-size:14px;font-weight:700;">📍 ${alert.region || 'Unknown Region'}</div>
+                        ${isLatest ? '<div style="font-size:11px;opacity:0.9;margin-top:2px;">✨ Latest AI Prediction</div>' : ''}
+                    </div>
+                    <table style="width:100%;font-size:12px;color:#333;border-collapse:collapse;">
+                        <tr><td style="color:#666;padding:3px 0;">Cause</td><td style="font-weight:600;text-align:right;">${alert.cause}</td></tr>
+                        <tr><td style="color:#666;padding:3px 0;">Severity</td><td style="font-weight:700;color:${color};text-align:right;">${(alert.severity || '').toUpperCase()}</td></tr>
+                        <tr><td style="color:#666;padding:3px 0;">Area</td><td style="font-weight:600;text-align:right;">${alert.affected_area_hectares.toFixed(2)} ha</td></tr>
+                        <tr><td style="color:#666;padding:3px 0;">Confidence</td><td style="font-weight:600;text-align:right;">${(alert.confidence * 100).toFixed(1)}%</td></tr>
+                        <tr><td style="color:#666;padding:3px 0;">GPS</td><td style="font-weight:600;text-align:right;">${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E</td></tr>
+                        <tr><td style="color:#666;padding:3px 0;">Status</td><td style="font-weight:600;text-align:right;">${alert.status || 'N/A'}</td></tr>
+                        ${officerRow}
+                        ${tsRow}
+                    </table>
                 </div>
-            `);
+            `, { maxWidth: 290 });
 
             mapMarkers.push(marker);
+            if (isLatest) latestMarker = marker;
         });
 
-        // Fit bounds if we have markers
-        if (mapMarkers.length > 0) {
+        // If "View on Map" was clicked from a prediction result, zoom + open popup
+        if (focusOnLatest && latestMarker && latestPredictionAlert) {
+            focusOnLatest = false;
+            map.setView([latestPredictionAlert.latitude, latestPredictionAlert.longitude], 10);
+            setTimeout(() => latestMarker.openPopup(), 400);
+        } else if (mapMarkers.length > 0) {
             const group = L.featureGroup(mapMarkers);
             map.fitBounds(group.getBounds().pad(0.3));
         }
@@ -455,6 +508,11 @@ async function initializeMap() {
     } catch (error) {
         console.error('Error loading map data:', error);
     }
+}
+
+function viewLatestOnMap() {
+    focusOnLatest = true;
+    switchPage('map');
 }
 
 /* ==================== OFFICERS PAGE ==================== */
@@ -647,6 +705,7 @@ async function runPrediction() {
 
         if (result.deforestation_detected && result.alert) {
             const alert = result.alert;
+            latestPredictionAlert = alert;
             const content = `
                 <div style="background:#1e293b; padding:16px; border-radius:8px;">
                     <div style="margin-bottom:16px; text-align:center;">
@@ -684,9 +743,10 @@ async function runPrediction() {
                         Alert ID: ${alert.alert_id}<br>
                         Status: <span class="badge badge-${alert.status}">${alert.status}</span>
                     </div>
-                    <button class="btn btn-primary btn-lg" onclick="switchPage('alerts')">
-                        View in Alerts
-                    </button>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="switchPage('alerts')">View in Alerts</button>
+                        <button class="btn btn-outline" onclick="viewLatestOnMap()">📍 View on Map</button>
+                    </div>
                 </div>
             `;
             document.getElementById('predResultContent').innerHTML = content;
@@ -758,6 +818,7 @@ async function runSatellitePrediction() {
 
         if (result.deforestation_detected && result.alert) {
             const alert = result.alert;
+            latestPredictionAlert = alert;
             const summary = result.model_summary || {};
             const notifs = result.notifications_sent || [];
             const content = `
@@ -814,14 +875,13 @@ async function runSatellitePrediction() {
                     </div>` : ''}
                     <div style="display:flex; gap:8px;">
                         <button class="btn btn-primary" onclick="switchPage('alerts')">View in Alerts</button>
-                        <button class="btn btn-outline" onclick="switchPage('map')">View on Map</button>
+                        <button class="btn btn-outline" onclick="viewLatestOnMap()">📍 View on Map</button>
                         <button class="btn btn-outline" onclick="runSatellitePrediction()">Analyze Another</button>
                     </div>
                 </div>
             `;
             document.getElementById('predResultContent').innerHTML = content;
             toast('Real satellite analysis complete - Alert & Notifications sent!', 'success');
-            initializeMap();
         } else {
             document.getElementById('predResultContent').innerHTML = `
                 <div style="text-align:center; padding:32px; color:#94a3b8;">
