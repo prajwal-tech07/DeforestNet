@@ -7,9 +7,20 @@ __pycache__/
 *.py[codz]
 *$py.class
 
-# Generated outputs (reproducible via scripts)
-outputs/
-data/
+# Generated outputs — exclude large binaries, keep visualisation PNGs
+outputs/gradcam/
+outputs/predictions/
+outputs/preprocessed/
+outputs/**/*.npy
+outputs/**/*.npz
+outputs/**/*.json
+
+# Raw / processed data (large binary numpy arrays)
+data/processed/
+data/raw/
+data/synthetic/*.npy
+data/synthetic/*.npz
+
 database/
 logs/
 models/checkpoints/
