@@ -1,13 +1,13 @@
-% ============================================================
+﻿% ============================================================
 % DeforestNet: IEEE Research Paper
-% Compile with: pdflatex -> bibtex -> pdflatex -> pdflatex
-% Recommended: Overleaf (auto-handles compilation)
+% Clean version — no overlapping diagrams, proper column layout
+% Compile on Overleaf: pdflatex -> bibtex -> pdflatex -> pdflatex
 % ============================================================
 
-\documentclass[10pt, conference]{IEEEtran}
+\documentclass[10pt,conference]{IEEEtran}
 \IEEEoverridecommandlockouts
 
-% ---- Core packages ----
+% ---- Packages ----
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{cite}
@@ -15,59 +15,65 @@
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
+\usepackage{colortbl}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{array}
-\usepackage{tabularx}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{balance}
+\usepackage{microtype}
 
-% ---- TikZ for diagrams ----
+% ---- TikZ ----
 \usepackage{tikz}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{
-  shapes.geometric, shapes.arrows, shapes.multipart,
-  arrows.meta, positioning, fit, backgrounds,
-  decorations.pathreplacing, calc, matrix, shadows
+  shapes.geometric,
+  arrows.meta,
+  positioning,
+  fit,
+  backgrounds,
+  calc,
+  decorations.pathreplacing
 }
 
-% ---- Color palette ----
+% ---- Colours ----
 \definecolor{forestgreen}{RGB}{34,139,34}
 \definecolor{logbrown}{RGB}{139,90,43}
 \definecolor{minepurple}{RGB}{128,0,128}
-\definecolor{agrigold}{RGB}{218,165,32}
-\definecolor{firered}{RGB}{220,50,32}
-\definecolor{infragray}{RGB}{105,105,105}
+\definecolor{agrigold}{RGB}{200,150,0}
+\definecolor{firered}{RGB}{200,40,30}
+\definecolor{infragray}{RGB}{90,90,90}
 \definecolor{deepblue}{RGB}{10,70,150}
 \definecolor{lightblue}{RGB}{173,216,230}
-\definecolor{lightyellow}{RGB}{255,255,200}
-\definecolor{lightgreen}{RGB}{200,255,200}
-\definecolor{lightpurple}{RGB}{230,200,255}
-\definecolor{darkorange}{RGB}{210,105,30}
 \definecolor{sarblue}{RGB}{30,100,200}
-\definecolor{opticalgreen}{RGB}{20,140,60}
-\definecolor{derivedorange}{RGB}{200,100,20}
-\definecolor{blockgray}{RGB}{240,240,245}
+\definecolor{optgreen}{RGB}{20,140,60}
+\definecolor{derorange}{RGB}{190,90,10}
+\definecolor{blockgray}{RGB}{235,235,242}
+\definecolor{rowforest}{RGB}{220,245,220}
+\definecolor{rowlog}{RGB}{245,230,210}
+\definecolor{rowmine}{RGB}{240,220,245}
+\definecolor{rowagri}{RGB}{255,250,210}
+\definecolor{rowfire}{RGB}{255,225,220}
+\definecolor{rowinfra}{RGB}{230,230,230}
 
-% ---- Hyperref setup ----
-\hypersetup{colorlinks=true, linkcolor=deepblue, citecolor=deepblue, urlcolor=deepblue}
+\hypersetup{colorlinks=true,linkcolor=deepblue,citecolor=deepblue,urlcolor=deepblue}
 
 % ============================================================
 \begin{document}
 % ============================================================
 
-\title{
-  \textbf{DeforestNet: Multi-Class Satellite Image Segmentation}\\
-  \textbf{for Real-Time Deforestation Cause Detection Using}\\
-  \textbf{11-Band SAR-Optical Fusion and Deep U-Net}
+\title{%
+  \textbf{DeforestNet: Multi-Class Satellite Image Segmentation}\\[2pt]
+  \textbf{for Real-Time Deforestation Cause Detection Using}\\[2pt]
+  \textbf{11-Band SAR-Optical Fusion and Deep U-Net}%
 }
 
-\author{
+\author{%
   \IEEEauthorblockN{Prajwal Hawaldar}
-  \IEEEauthorblockA{
+  \IEEEauthorblockA{%
     \textit{Department of Computer Science \& Engineering}\\
     \textit{[Your Institution Name]}\\
     Pune, India\\
@@ -81,28 +87,28 @@
 \begin{abstract}
 Tropical deforestation continues at an unprecedented rate, with over 6.7 million
 hectares lost in 2024 alone. Existing monitoring systems predominantly perform
-binary forest / non-forest classification, failing to distinguish \emph{why}
-forest cover is being lost---an essential input for targeted enforcement and
-conservation policy. This paper presents \textbf{DeforestNet}, an end-to-end
-satellite intelligence platform that fuses Sentinel-1 Synthetic Aperture Radar
-(SAR) and Sentinel-2 multi-spectral imagery into a single 11-band input stack and
-performs pixel-wise semantic segmentation across \textbf{six deforestation cause
-classes}: intact Forest, Logging, Mining, Agriculture encroachment, Fire damage,
-and Infrastructure expansion. A modified U-Net with a ResNet-34 encoder (24.4M
+binary forest/non-forest classification, failing to distinguish \emph{why} forest
+cover is being lost---an essential input for targeted enforcement and conservation
+policy. This paper presents \textbf{DeforestNet}, an end-to-end satellite
+intelligence platform that fuses Sentinel-1 Synthetic Aperture Radar (SAR) and
+Sentinel-2 multi-spectral imagery into a single 11-band input stack and performs
+pixel-wise semantic segmentation across \textbf{six deforestation cause classes}:
+intact Forest, Logging, Mining, Agriculture encroachment, Fire damage, and
+Infrastructure expansion. A modified U-Net with a ResNet-34 encoder (24.4M
 parameters) is trained using a combined Cross-Entropy + Dice + Focal loss to
-handle severe class imbalance. On a synthetic 2,800-sample benchmark, the model
+handle severe class imbalance. On a synthetic 2,800-sample benchmark the model
 achieves \textbf{99.58\% overall accuracy}, \textbf{97.08\% mean IoU}, and
-\textbf{98.49\% mean Dice} coefficient. Beyond inference, DeforestNet integrates
+\textbf{98.49\% mean Dice coefficient}. Beyond inference, DeforestNet integrates
 a real-time alert pipeline, a three-tier notification system (Firebase FCM,
-Telegram, Gmail SMTP), and a Flask-based interactive web dashboard for
-operational deployment. Grad-CAM explainability overlays provide per-band
-attribution heatmaps. The entire system is open-source, cloud-deployable, and
-operates at zero data-acquisition cost using the ESA Copernicus free-tier API.
+Telegram, Gmail SMTP), and a Flask-based interactive web dashboard for operational
+deployment. Grad-CAM explainability overlays provide per-band attribution
+heatmaps. The entire system is open-source, cloud-deployable, and operates at
+zero data-acquisition cost using the ESA Copernicus free-tier API.
 \end{abstract}
 
 \begin{IEEEkeywords}
-semantic segmentation, deforestation detection, SAR-optical fusion, U-Net, ResNet-34,
-Sentinel-1, Sentinel-2, multi-spectral, vegetation indices, NDVI, Grad-CAM,
+semantic segmentation, deforestation detection, SAR-optical fusion, U-Net,
+ResNet-34, Sentinel-1, Sentinel-2, vegetation indices, NDVI, Grad-CAM,
 real-time alerting, deep learning, remote sensing
 \end{IEEEkeywords}
 
@@ -111,52 +117,48 @@ real-time alerting, deep learning, remote sensing
 \label{sec:intro}
 % ============================================================
 
-Tropical forests cover approximately 12\% of the Earth's land surface yet harbour
+Tropical forests cover approximately 12\% of the Earth land surface yet harbour
 more than 50\% of all terrestrial species and store the equivalent of 25 years of
-global fossil-fuel CO$_2$ emissions \cite{pan2011large}. The Food and Agriculture
+global fossil-fuel CO$_{2}$ emissions~\cite{pan2011large}. The Food and Agriculture
 Organisation (FAO) estimates that \textbf{10 million hectares} of forest are lost
 annually, with the pace accelerating in Brazil, the Democratic Republic of Congo,
-and Southeast Asia \cite{fao2020global}. The EU Deforestation Regulation (EUDR,
-Regulation (EU) 2023/1115), which mandates supply-chain traceability to the
-parcel level for seven high-risk commodities, comes into full effect in
-December 2026, creating an urgent industrial demand for accurate, cause-specific
-deforestation intelligence \cite{eudr2023}.
+and Southeast Asia~\cite{fao2020global}. The EU Deforestation Regulation (EUDR,
+Regulation (EU) 2023/1115), mandating supply-chain traceability to the parcel
+level for seven high-risk commodities, comes into full effect in December 2026,
+creating urgent industrial demand for accurate, cause-specific deforestation
+intelligence~\cite{eudr2023}.
 
 Current operational systems such as PRODES, Global Forest Watch (GFW), and
-JAXA's PALSAR forest/non-forest product classify every pixel as one of two
-classes: forested or deforested \cite{shimada2014newglobal}. This binary view is
-inadequate for enforcement agencies that must distinguish legal agricultural
-expansion from illegal mining or uncontrolled wildfire---activities that have
-radically different regulatory responses and stakeholders. Furthermore, pure
-optical systems are blind to 60--80\% of tropical forest pixels during peak
-deforestation seasons due to persistent cloud cover \cite{asner2009highresolution},
-necessitating SAR integration.
+JAXA PALSAR classify every pixel as one of two classes: forested or
+deforested~\cite{shimada2014newglobal}. This binary view is inadequate for
+enforcement agencies that must distinguish legal agricultural expansion from
+illegal mining or uncontrolled wildfire. Furthermore, pure optical systems are
+blind to 60--80\% of tropical forest pixels during peak deforestation seasons
+due to persistent cloud cover~\cite{asner2009highresolution}, necessitating
+SAR integration.
 
-We address these gaps with \textbf{DeforestNet}, a system that makes three
-principal contributions:
+We address these gaps with \textbf{DeforestNet}, making three principal
+contributions:
 
 \begin{enumerate}
-  \item \textbf{11-Band SAR-Optical Fusion:} We combine Sentinel-1 VV/VH SAR
+  \item \textbf{11-Band SAR-Optical Fusion.} We combine Sentinel-1 VV/VH SAR
         backscatter with Sentinel-2 B2, B3, B4, B8 optical bands and five
         derived spectral indices (NDVI, EVI, SAVI, VV/VH Ratio, RVI) into a
-        unified 11-channel input stack, enabling all-weather, cloud-penetrating
-        forest mapping.
-  \item \textbf{Six-Class Cause Identification:} We define a hierarchical
-        deforestation taxonomy---Forest, Logging, Mining, Agriculture, Fire,
+        unified 11-channel input stack, enabling all-weather monitoring.
+  \item \textbf{Six-Class Cause Identification.} We define a deforestation
+        taxonomy---Forest, Logging, Mining, Agriculture, Fire,
         Infrastructure---and train a U-Net + ResNet-34 encoder to perform
         pixel-wise multi-class segmentation.
-  \item \textbf{Operational End-to-End Platform:} DeforestNet wraps inference
-        inside a production REST API with automated monitoring, a three-tier
-        notification system, interactive map dashboard, and Grad-CAM model
-        explainability.
+  \item \textbf{Operational Platform.} DeforestNet wraps inference inside a
+        production REST API with automated monitoring, three-tier notifications,
+        interactive map dashboard, and Grad-CAM explainability.
 \end{enumerate}
 
-The remainder of this paper is structured as follows: Section~\ref{sec:related}
-reviews related work; Section~\ref{sec:data} describes the 11-band input
-architecture; Section~\ref{sec:model} details the U-Net model; Section~\ref{sec:training}
-presents training methodology; Section~\ref{sec:results} reports benchmark
-performance; Section~\ref{sec:system} covers the operational system; and
-Section~\ref{sec:conclusion} concludes.
+The paper is structured as follows: Section~\ref{sec:related} reviews related
+work; Section~\ref{sec:data} describes the 11-band input; Section~\ref{sec:model}
+details the U-Net model; Section~\ref{sec:training} presents training methodology;
+Section~\ref{sec:results} reports results; Section~\ref{sec:system} covers the
+operational system; and Section~\ref{sec:conclusion} concludes.
 
 % ============================================================
 \section{Related Work}
@@ -164,187 +166,181 @@ Section~\ref{sec:conclusion} concludes.
 % ============================================================
 
 \subsection{Binary Forest Mapping}
-Early deep learning approaches to deforestation monitoring applied fully
-convolutional networks (FCN) \cite{long2015fully} and SegNet \cite{badrinarayanan2017segnet}
-to single-date Landsat composites. While achieving high binary accuracy
-($>$95\%), they fail to localise individual disturbance agents \cite{torres2021deforestation}.
+Early deep learning approaches applied fully convolutional networks
+(FCN)~\cite{long2015fully} and SegNet~\cite{badrinarayanan2017segnet} to
+single-date Landsat composites. While achieving high binary accuracy ($>$95\%),
+they fail to localise individual disturbance agents~\cite{torres2021deforestation}.
 
 \subsection{SAR-Optical Fusion}
 Several works have fused Sentinel-1 and Sentinel-2 for land-cover mapping.
 Kussul et al.~\cite{kussul2017deep} demonstrated that multi-temporal SAR fusion
-improves crop-type F1 by 7--12\%. For forest monitoring,
-Rosen et al.~\cite{rosen2021measuring} showed that L-band SAR penetrates forest
-canopy to measure below-canopy biomass, while Sentinel-1 C-band is sensitive to
-surface structural changes caused by logging and fire.
+improves crop-type F1 by 7--12\%. Rosen et al.~\cite{rosen2021measuring} showed
+that C-band SAR is sensitive to surface structural changes caused by logging
+and fire.
 
 \subsection{U-Net Architectures}
-The U-Net \cite{ronneberger2015unet} introduced skip connections between encoder
-and decoder to preserve fine-grained spatial detail during upsampling. Subsequent
-encoder–decoder variants replaced the vanilla encoder with ResNet-34 \cite{he2016deep},
-ResNet-50, or EfficientNet backbones, trading model capacity for segmentation
-accuracy. Chen et al.~\cite{chen2018encoderdecoder} extended this to DeepLabv3+
-with atrous convolutions. We adopt a ResNet-34 encoder for its optimal
-accuracy--parameter tradeoff on moderate-resolution satellite imagery.
+The U-Net~\cite{ronneberger2015unet} introduced skip connections that preserve
+spatial detail during upsampling. Subsequent variants replaced the encoder
+with ResNet-34~\cite{he2016deep} or EfficientNet. Chen et
+al.~\cite{chen2018encoderdecoder} extended this to DeepLabv3+ with atrous
+convolutions. We adopt ResNet-34 for its optimal accuracy--parameter trade-off
+on moderate-resolution satellite imagery.
 
 \subsection{Multi-Class Deforestation}
-Multi-cause segmentation is underexplored. Silva et al.~\cite{silva2021mapping}
-used a random forest classifier on 12 Landsat bands to distinguish logging from
-agriculture across 4 classes, achieving 88\% overall accuracy without explicit
-SAR bands. Our six-class approach with an 11-channel deep encoder substantially
-extends this work.
+Silva et al.~\cite{silva2021mapping} used a random forest classifier on 12
+Landsat bands across 4 classes, achieving 88\% accuracy without SAR bands. Our
+six-class approach with an 11-channel deep encoder substantially extends this.
 
 % ============================================================
 \section{11-Band Satellite Input Architecture}
 \label{sec:data}
 % ============================================================
 
-\subsection{Sentinel-1 SAR Bands (Bands 0--1)}
+\subsection{Sentinel-1 SAR Bands (Channels 0--1)}
 
-Sentinel-1 C-band SAR operates at 5.405~GHz ($\lambda = 5.6$~cm) in
-Interferometric Wide Swath (IW) mode at 10~m ground range resolution. We use
-two co-polarisation channels:
-
+Sentinel-1 C-band SAR operates at 5.405~GHz ($\lambda{=}5.6$\,cm) in
+Interferometric Wide Swath mode at 10\,m ground resolution. Two co-polarisation
+channels are used:
 \begin{itemize}
-  \item \textbf{VV} (Vertical--Vertical): sensitive to surface roughness and
-        dielectric properties. Logging removes the canopy layer, causing a sharp
-        VV backscatter decrease of 3--8~dB.
-  \item \textbf{VH} (Vertical--Horizontal): cross-polarisation sensitive to
-        volume scattering from forest canopy structure. Intact forest shows
-        high VH; cleared land shows very low VH.
+  \item \textbf{VV}: sensitive to surface roughness. Logging causes a sharp
+        backscatter decrease of 3--8\,dB.
+  \item \textbf{VH}: cross-polarisation sensitive to canopy volume scattering.
+        Intact forest shows high VH; cleared land very low VH.
 \end{itemize}
 
-SAR provides cloud-penetrating all-weather capability critical in tropical regions
-where optical revisit is blocked 60--80\% of the time.
+\subsection{Sentinel-2 Optical Bands (Channels 2--5)}
 
-\subsection{Sentinel-2 Optical Bands (Bands 2--5)}
+We use four 10\,m MSI bands (Table~\ref{tab:s2bands}). Bands B4 and B8 are
+the primary discriminators: intact canopy shows low Red and high NIR; cleared
+land inverts this. Band B2 enables EVI atmospheric correction.
 
-We use four 10~m Sentinel-2 MSI bands (Table~\ref{tab:s2bands}):
-
-\begin{table}[h]
+\begin{table}[!t]
   \caption{Sentinel-2 Bands Used in DeforestNet}
   \label{tab:s2bands}
   \centering
   \begin{tabular}{c l c c c}
     \toprule
-    \textbf{Band} & \textbf{Name} & \textbf{$\lambda_c$ (nm)} & \textbf{BW (nm)} & \textbf{Res (m)} \\
+    \textbf{Ch.} & \textbf{Name} & \boldmath{$\lambda_c$} \textbf{(nm)} &
+    \textbf{BW (nm)} & \textbf{Res (m)} \\
     \midrule
-    B2 & Blue  & 490 & 65 & 10 \\
-    B3 & Green & 560 & 35 & 10 \\
-    B4 & Red   & 665 & 30 & 10 \\
-    B8 & NIR   & 842 & 115 & 10 \\
+    2 & Blue  & 490 & 65  & 10 \\
+    3 & Green & 560 & 35  & 10 \\
+    4 & Red   & 665 & 30  & 10 \\
+    5 & NIR   & 842 & 115 & 10 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\textbf{B4/B8} are the primary deforestation discriminators: forest canopy
-exhibits low Red reflectance and high NIR reflectance due to chlorophyll
-absorption and cell-wall scattering respectively. Cleared land inverts this
-signature. \textbf{B2} (Blue) is essential for EVI atmospheric correction and for
-detecting turbid sediment-laden water bodies associated with alluvial mining.
+\subsection{Derived Vegetation and Radar Indices (Channels 6--10)}
 
-\subsection{Derived Vegetation \& Radar Indices (Bands 6--10)}
+Five computed indices augment the raw bands (Table~\ref{tab:indices}). NDVI and
+RVI together give cross-validated vegetation density estimation that is robust
+to sensor cross-calibration errors.
 
-Five computed indices augment the raw bands (Table~\ref{tab:indices}):
-
-\begin{table}[h]
+\begin{table}[!t]
   \caption{Derived Spectral and Radar Indices}
   \label{tab:indices}
   \centering
   \small
-  \begin{tabular}{l l p{3.5cm}}
+  \renewcommand{\arraystretch}{1.5}
+  \begin{tabular}{l l p{2.7cm}}
     \toprule
     \textbf{Index} & \textbf{Formula} & \textbf{Deforestation Role} \\
     \midrule
-    NDVI  & $\frac{\text{NIR}-\text{Red}}{\text{NIR}+\text{Red}}$
-          & Primary vegetation health; drops sharply on clearing \\[4pt]
-    EVI   & $G \cdot \frac{\text{NIR}-\text{Red}}{\text{NIR}+C_1\cdot\text{Red}-C_2\cdot\text{Blue}+L}$
-          & Corrected for aerosols; sensitive in dense canopy \\[4pt]
-    SAVI  & $\frac{(\text{NIR}-\text{Red})(1+L)}{\text{NIR}+\text{Red}+L}$
-          & Soil-adjusted; critical for partial clearings \\[4pt]
-    VV/VH & $\frac{\text{VV}}{\text{VH}}$
-          & Structural change; logging reduces ratio sharply \\[4pt]
-    RVI   & $\frac{4\cdot\text{VH}}{\text{VV}+\text{VH}}$
-          & Radar Vegetation Index; corroborates optical NDVI \\
+    NDVI  & $\dfrac{\text{NIR}-\text{Red}}{\text{NIR}+\text{Red}}$
+          & Primary vegetation health indicator \\
+    EVI   & $G\,\dfrac{\text{NIR}-\text{Red}}{\text{NIR}+C_1\text{Red}-C_2\text{Blue}+L}$
+          & Aerosol-corrected; dense canopy \\
+    SAVI  & $\dfrac{(\text{NIR}-\text{Red})(1+L)}{\text{NIR}+\text{Red}+L}$
+          & Soil-adjusted; partial clearings \\
+    VV/VH & $\dfrac{\text{VV}}{\text{VH}}$
+          & Structural change indicator \\
+    RVI   & $\dfrac{4\cdot\text{VH}}{\text{VV}+\text{VH}}$
+          & Radar vegetation index \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\noindent Figure~\ref{fig:band_stack} illustrates the complete 11-band input stack
-and the class-specific spectral signatures for each of the six deforestation causes.
+\subsection{11-Band Input Stack Visualisation}
 
-% ---- Band Stack Diagram ----
-\begin{figure}[h]
+Figure~\ref{fig:band_stack} shows the complete 11-channel input stack
+grouped by sensor origin.
+
+\begin{figure}[!t]
 \centering
-\begin{tikzpicture}[scale=0.78, every node/.style={font=\footnotesize}]
+\begin{tikzpicture}[
+  every node/.style={font=\scriptsize},
+  band/.style={draw, minimum width=0.48cm, minimum height=3.0cm,
+               rounded corners=1.5pt, line width=0.6pt}
+]
+\node[band,fill=sarblue!30,draw=sarblue!70]    at (0.00,0) {};
+\node[band,fill=sarblue!18,draw=sarblue!60]    at (0.56,0) {};
+\node[band,fill=blue!30,   draw=blue!70]       at (1.12,0) {};
+\node[band,fill=green!30,  draw=green!70]      at (1.68,0) {};
+\node[band,fill=red!30,    draw=red!70]        at (2.24,0) {};
+\node[band,fill=red!14,    draw=red!50]        at (2.80,0) {};
+\node[band,fill=optgreen!32,draw=optgreen!70]  at (3.36,0) {};
+\node[band,fill=optgreen!22,draw=optgreen!60]  at (3.92,0) {};
+\node[band,fill=optgreen!14,draw=optgreen!50]  at (4.48,0) {};
+\node[band,fill=derorange!28,draw=derorange!65] at (5.04,0) {};
+\node[band,fill=derorange!16,draw=derorange!50] at (5.60,0) {};
 
-  % Title
-  \node[font=\small\bfseries] at (3.5, 5.4) {11-Band SAR-Optical Fusion Stack};
+\foreach \x/\lbl in {
+  0.00/VV, 0.56/VH, 1.12/B2, 1.68/B3, 2.24/B4, 2.80/B8,
+  3.36/NDVI, 3.92/EVI, 4.48/SAVI, 5.04/VVR, 5.60/RVI}
+{
+  \node[rotate=90,font=\tiny\bfseries] at (\x+0.24, 0) {\lbl};
+}
 
-  % Band blocks
-  \foreach \i/\name/\col/\type in {
-    0/VV/sarblue/SAR,
-    1/VH/sarblue!70/SAR,
-    2/B2/blue!60/OPT,
-    3/B3/green!60/OPT,
-    4/B4/red!60/OPT,
-    5/B8/red!20/OPT,
-    6/NDVI/opticalgreen/IDX,
-    7/EVI/opticalgreen!70/IDX,
-    8/SAVI/opticalgreen!50/IDX,
-    9/VV/VH/derivedorange/IDX,
-    10/RVI/derivedorange!70/IDX
-  }{
-    \pgfmathsetmacro{\x}{\i*0.65}
-    \draw[fill=\col!30, draw=\col!80, line width=0.7pt, rounded corners=2pt]
-      (\x, 0) rectangle (\x+0.55, 4.0);
-    \node[rotate=90, anchor=south, text=black] at (\x+0.275, 0.1) {\name};
-  }
+\draw[decorate,decoration={brace,mirror,amplitude=4pt},sarblue,thick]
+  (-0.04,-1.62) -- (1.07,-1.62)
+  node[midway,below=5pt,sarblue,font=\tiny\bfseries] {SAR};
+\draw[decorate,decoration={brace,mirror,amplitude=4pt},optgreen!70!black,thick]
+  (1.07,-1.62) -- (3.32,-1.62)
+  node[midway,below=5pt,optgreen!70!black,font=\tiny\bfseries] {Optical};
+\draw[decorate,decoration={brace,mirror,amplitude=4pt},derorange,thick]
+  (3.32,-1.62) -- (6.12,-1.62)
+  node[midway,below=5pt,derorange,font=\tiny\bfseries] {Derived};
 
-  % Type brackets
-  \draw[{Bracket[width=4pt]}-{Bracket[width=4pt]}, sarblue, thick]
-    (0,-0.5) -- (1.3,-0.5) node[midway, below, sarblue] {SAR};
-  \draw[{Bracket[width=4pt]}-{Bracket[width=4pt]}, opticalgreen!80!black, thick]
-    (1.3,-0.5) -- (3.9,-0.5) node[midway, below, opticalgreen!70!black] {Optical};
-  \draw[{Bracket[width=4pt]}-{Bracket[width=4pt]}, derivedorange, thick]
-    (3.9,-0.5) -- (7.15,-0.5) node[midway, below, derivedorange] {Derived};
-
-  % Input label
-  \node[draw=deepblue, fill=deepblue!10, rounded corners, font=\small\bfseries,
-        minimum width=7.15cm, minimum height=0.55cm, text=deepblue]
-    at (3.575, 4.65) {Input: [B, 11, 256, 256] float32};
-
+\node[draw=deepblue,fill=deepblue!8,rounded corners=2pt,
+      font=\scriptsize\bfseries,text=deepblue,
+      minimum width=6.16cm,minimum height=0.48cm]
+  at (3.04,1.92) {Input: [B,\;11,\;256,\;256]\;float32};
 \end{tikzpicture}
-\caption{The 11-channel input stack: 2 SAR bands (cloud-penetrating), 4 Sentinel-2
-         optical bands (10\,m resolution), and 5 derived vegetation/radar indices.}
+\caption{The 11-channel input stack. VVR = VV/VH ratio. Colours indicate
+         sensor group: Sentinel-1 SAR (blue), Sentinel-2 optical (green/red),
+         and derived indices (orange).}
 \label{fig:band_stack}
 \end{figure}
 
 \subsection{Class Spectral Signatures}
 
-Table~\ref{tab:spectral} summarises the key SAR/optical signature profile for
-each of the six target classes, which motivates the multi-band fusion design:
+Table~\ref{tab:spectral} summarises the key SAR/optical signature for each
+target class.
 
-\begin{table}[h]
+\begin{table}[!t]
   \caption{Per-Class Spectral Signatures Across Key Bands}
   \label{tab:spectral}
   \centering
   \small
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabular}{l c c c c c}
     \toprule
-    \textbf{Class} & \textbf{VV} & \textbf{VH} & \textbf{B4} & \textbf{B8} & \textbf{NDVI} \\
+    \textbf{Class} & \textbf{VV} & \textbf{VH} & \textbf{Red} &
+                     \textbf{NIR} & \textbf{NDVI} \\
     \midrule
-    \rowcolor{forestgreen!15}
-    Forest         & High   & Low    & Low    & High   & High ($>$0.6) \\
-    \rowcolor{logbrown!15}
-    Logging        & Med    & Med    & High   & Low    & Low (0.0--0.2) \\
-    \rowcolor{minepurple!15}
-    Mining         & Low    & High   & Med    & Low    & Very Low ($<$0) \\
-    \rowcolor{agrigold!15}
-    Agriculture    & Med    & Low    & Med    & Med    & Med (0.3--0.5) \\
-    \rowcolor{firered!15}
-    Fire           & Low    & Low    & Low    & Low    & Very Low ($<$0) \\
-    \rowcolor{infragray!15}
-    Infrastructure & High   & High   & Med    & Med    & Low (0.0--0.2) \\
+    \rowcolor{rowforest}
+    Forest        & Hi  & Lo  & Lo  & Hi  & $>$0.6 \\
+    \rowcolor{rowlog}
+    Logging       & Med & Med & Hi  & Lo  & 0.0--0.2 \\
+    \rowcolor{rowmine}
+    Mining        & Lo  & Hi  & Med & Lo  & $<$0.0 \\
+    \rowcolor{rowagri}
+    Agriculture   & Med & Lo  & Med & Med & 0.3--0.5 \\
+    \rowcolor{rowfire}
+    Fire          & Lo  & Lo  & Lo  & Lo  & $<$0.0 \\
+    \rowcolor{rowinfra}
+    Infrastructure& Hi  & Hi  & Med & Med & 0.0--0.2 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -356,135 +352,155 @@ each of the six target classes, which motivates the multi-band fusion design:
 
 \subsection{U-Net with ResNet-34 Encoder}
 
-DeforestNet adopts an encoder--decoder architecture based on the seminal U-Net
-\cite{ronneberger2015unet}, replacing the original vanilla convolutional encoder
-with a ResNet-34 backbone \cite{he2016deep} modified to accept 11-channel input.
-Skip connections bridge corresponding encoder and decoder feature maps at four
-spatial scales, preserving fine-grained boundary detail that would otherwise be
-lost through pooling.
-
-The network has \textbf{24,454,534 parameters} (93.3~MB) and processes
-$256 \times 256$ tiles in 11-channel float32 format.
+DeforestNet adopts an encoder-decoder architecture based on
+U-Net~\cite{ronneberger2015unet}, replacing the vanilla encoder with a
+ResNet-34 backbone~\cite{he2016deep} modified to accept 11-channel input.
+Skip connections bridge encoder and decoder feature maps at four spatial
+scales, preserving fine-grained boundary detail. The network has
+\textbf{24,454,534 parameters} (93.3\,MB).
 
 \subsection{Encoder: Modified ResNet-34}
 
-The ResNet-34 first convolution layer is remapped from the standard
-$7 \times 7 \times 3 \to 64$ kernel to $7 \times 7 \times 11 \to 64$ to
-accommodate the 11-channel input. All remaining weights can be initialised from
-ImageNet-pretrained weights by averaging the three-channel kernel weights across
-the 11 input channels. The encoder produces five skip-connection feature maps
-at decreasing spatial resolutions:
+The ResNet-34 first convolution is remapped from
+$7{\times}7{\times}3{\to}64$ to $7{\times}7{\times}11{\to}64$.
+Table~\ref{tab:encoder} lists the five encoder stages.
 
-\begin{table}[h]
+\begin{table}[!t]
   \caption{ResNet-34 Encoder Feature Map Dimensions}
   \label{tab:encoder}
   \centering
+  \small
   \begin{tabular}{l c c c}
     \toprule
-    \textbf{Stage} & \textbf{Residual Blocks} & \textbf{Channels} & \textbf{Spatial} \\
+    \textbf{Stage} & \textbf{Blocks} & \textbf{Channels} & \textbf{Spatial} \\
     \midrule
-    Stem + MaxPool & 1  & 64  & 128$\times$128 \\
-    Layer 1        & 3  & 64  & 64$\times$64   \\
-    Layer 2        & 4  & 128 & 32$\times$32   \\
-    Layer 3        & 6  & 256 & 16$\times$16   \\
-    Layer 4 (Bottleneck) & 3 & 512 & 8$\times$8 \\
+    Stem + MaxPool & 1 & 64  & $128{\times}128$ \\
+    Layer 1        & 3 & 64  & $64{\times}64$   \\
+    Layer 2        & 4 & 128 & $32{\times}32$   \\
+    Layer 3        & 6 & 256 & $16{\times}16$   \\
+    Bottleneck     & 3 & 512 & $8{\times}8$     \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \subsection{Decoder: Skip-Connection Upsampling}
 
-Each decoder block bilinearly upsamples the feature map by $2\times$,
-concatenates the corresponding skip connection, and applies two
-$3 \times 3$ convolutional layers with batch normalisation and ReLU activation.
-A $1 \times 1$ dropout (p = 0.2) classification head produces the final
-six-class logit map at full $256 \times 256$ resolution:
+Each decoder block bilinearly upsamples by $2{\times}$, concatenates the
+skip connection, and applies two $3{\times}3$ conv layers with batch
+normalisation and ReLU. A $1{\times}1$ head with dropout ($p{=}0.2$)
+produces the final six-class logit map at $256{\times}256$.
 
-\begin{table}[h]
+\begin{table}[!t]
   \caption{U-Net Decoder Block Specifications}
   \label{tab:decoder}
   \centering
+  \small
   \begin{tabular}{l c c c}
     \toprule
-    \textbf{Block} & \textbf{Skip Ch.} & \textbf{In $\to$ Out Ch.} & \textbf{Output} \\
+    \textbf{Block} & \textbf{Skip Ch.} & \textbf{In$\to$Out} & \textbf{Output} \\
     \midrule
-    Decoder 4 & 256 & $512{+}256 \to 256$ & 16$\times$16 \\
-    Decoder 3 & 128 & $256{+}128 \to 128$ & 32$\times$32 \\
-    Decoder 2 & 64  & $128{+}64  \to 64$  & 64$\times$64 \\
-    Decoder 1 & 64  & $64{+}64   \to 32$  & 128$\times$128 \\
-    Final Upsample & -- & $32 \to 6$ & 256$\times$256 \\
+    Decoder 4 & 256 & $768\to256$ & $16{\times}16$ \\
+    Decoder 3 & 128 & $384\to128$ & $32{\times}32$ \\
+    Decoder 2 & 64  & $192\to64$  & $64{\times}64$ \\
+    Decoder 1 & 64  & $128\to32$  & $128{\times}128$ \\
+    Head      & --  & $32\to6$    & $256{\times}256$ \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Figure~\ref{fig:architecture} illustrates the full model data flow.
+Figure~\ref{fig:architecture} shows the full model data flow spanning both
+columns.
 
-% ---- Architecture Diagram ----
-\begin{figure}[h]
+% ---- Architecture Diagram: full two-column width ----
+\begin{figure*}[!t]
 \centering
 \begin{tikzpicture}[
-  scale=0.75,
-  box/.style={draw, minimum width=1.0cm, minimum height=0.45cm,
-              rounded corners=2pt, font=\scriptsize, align=center},
-  enc/.style={box, fill=deepblue!20, draw=deepblue!70},
-  dec/.style={box, fill=opticalgreen!20, draw=opticalgreen!70},
-  skip/.style={->, dashed, deepblue!60, thick},
-  flow/.style={->, thick, black!70},
-  head/.style={box, fill=firered!20, draw=firered!70}
+  every node/.style={font=\small},
+  enc/.style={draw=deepblue!70,fill=deepblue!12,rounded corners=3pt,
+              minimum width=2.6cm,minimum height=0.65cm,
+              font=\scriptsize\bfseries,align=center},
+  dec/.style={draw=optgreen!70,fill=optgreen!12,rounded corners=3pt,
+              minimum width=2.6cm,minimum height=0.65cm,
+              font=\scriptsize\bfseries,align=center},
+  head/.style={draw=firered!70,fill=firered!12,rounded corners=3pt,
+               minimum width=2.6cm,minimum height=0.65cm,
+               font=\scriptsize\bfseries,align=center},
+  inp/.style={draw=sarblue!70,fill=sarblue!12,rounded corners=3pt,
+              minimum width=2.6cm,minimum height=0.65cm,
+              font=\scriptsize\bfseries,align=center},
+  flow/.style={->,thick,>=Stealth,black!65},
+  skip/.style={->,thick,>=Stealth,deepblue!55,dashed}
 ]
 
-% Input
-\node[enc, minimum width=1.8cm, fill=sarblue!20, draw=sarblue!70] (inp) at (0,0) {Input\\[B,11,256,256]};
+% Encoder (left column)
+\node[inp]                        (inp) at (0,0)    {Input\\[B, 11, 256$\times$256]};
+\node[enc,below=0.6cm of inp]     (e1)              {Stem + MaxPool\\64\,ch \ $128{\times}128$};
+\node[enc,below=0.6cm of e1]      (e2)              {Layer\,1 (3 blocks)\\64\,ch \ $64{\times}64$};
+\node[enc,below=0.6cm of e2]      (e3)              {Layer\,2 (4 blocks)\\128\,ch \ $32{\times}32$};
+\node[enc,below=0.6cm of e3]      (e4)              {Layer\,3 (6 blocks)\\256\,ch \ $16{\times}16$};
+\node[enc,fill=deepblue!28,draw=deepblue,below=0.6cm of e4] (bot)
+                                                    {Bottleneck (3 blocks)\\512\,ch \ $8{\times}8$};
 
-% Encoder blocks
-\node[enc] (e1) at (0,-1.1) {Stem\\64ch 128$\times$};
-\node[enc] (e2) at (0,-2.0) {Layer1\\64ch 64$\times$};
-\node[enc] (e3) at (0,-2.9) {Layer2\\128ch 32$\times$};
-\node[enc] (e4) at (0,-3.8) {Layer3\\256ch 16$\times$};
-\node[enc, fill=deepblue!40] (e5) at (0,-4.7) {Bottleneck\\512ch 8$\times$};
+% Decoder (right column, vertically aligned with encoder)
+\node[dec] (d4) at (7.2,-2.35) {Decoder\,4 (Upsample)\\256\,ch \ $16{\times}16$};
+\node[dec] (d3) at (7.2,-3.55) {Decoder\,3 (Upsample)\\128\,ch \ $32{\times}32$};
+\node[dec] (d2) at (7.2,-4.75) {Decoder\,2 (Upsample)\\64\,ch \ $64{\times}64$};
+\node[dec] (d1) at (7.2,-5.95) {Decoder\,1 (Upsample)\\32\,ch \ $128{\times}128$};
+\node[head]     (out) at (7.2,-7.15) {Output Head ($1{\times}1$ Conv)\\[B, 6, 256$\times$256]};
 
-% Decoder blocks
-\node[dec] (d4) at (3.2,-3.8) {Dec4\\256ch 16$\times$};
-\node[dec] (d3) at (3.2,-2.9) {Dec3\\128ch 32$\times$};
-\node[dec] (d2) at (3.2,-2.0) {Dec2\\64ch 64$\times$};
-\node[dec] (d1) at (3.2,-1.1) {Dec1\\32ch 128$\times$};
-
-% Output head
-\node[head, minimum width=1.8cm] (out) at (3.2,0) {Output Head\\[B,6,256,256]};
-
-% Vertical flow (encoder)
+% Encoder vertical flow
 \draw[flow] (inp)--(e1);
 \draw[flow] (e1)--(e2);
 \draw[flow] (e2)--(e3);
 \draw[flow] (e3)--(e4);
-\draw[flow] (e4)--(e5);
+\draw[flow] (e4)--(bot);
 
-% Bottleneck to first decoder
-\draw[flow] (e5) -- (3.2,-4.7) -- (d4);
+% Bottleneck -> decoder
+\draw[flow] (bot.east) -- ++(1.8,0)
+            node[midway,above,font=\tiny,black!60] {512 ch}
+            |- (d4.west);
 
-% Decoder upward flow
+% Decoder vertical flow
 \draw[flow] (d4)--(d3);
 \draw[flow] (d3)--(d2);
 \draw[flow] (d2)--(d1);
 \draw[flow] (d1)--(out);
 
 % Skip connections
-\draw[skip] (e4.east) -- ++(0.3,0) |- (d4.west)
-  node[midway, above, font=\tiny, deepblue] {skip};
-\draw[skip] (e3.east) -- ++(0.5,0) |- (d3.west);
-\draw[skip] (e2.east) -- ++(0.7,0) |- (d2.west);
-\draw[skip] (e1.east) -- ++(0.9,0) |- (d1.west);
+\draw[skip] (e4.east) -- ++(0.7,0) |-
+            node[near start,above,font=\tiny,deepblue] {256 ch} (d4.north west);
+\draw[skip] (e3.east) -- ++(1.1,0) |-
+            node[near start,above,font=\tiny,deepblue] {128 ch} (d3.north west);
+\draw[skip] (e2.east) -- ++(1.5,0) |-
+            node[near start,above,font=\tiny,deepblue] {64 ch}  (d2.north west);
+\draw[skip] (e1.east) -- ++(1.9,0) |-
+            node[near start,above,font=\tiny,deepblue] {64 ch}  (d1.north west);
 
-% Labels
-\node[font=\tiny\bfseries, deepblue] at (-0.95,-2.3) {ENCODER};
-\node[font=\tiny\bfseries, opticalgreen!70!black] at (4.35,-2.3) {DECODER};
+% Column labels
+\node[font=\footnotesize\bfseries,deepblue,rotate=90]
+     at (-1.8,-3.2) {ENCODER (ResNet-34)};
+\node[font=\footnotesize\bfseries,optgreen!70!black,rotate=270]
+     at (9.2,-4.75) {DECODER};
+
+% Legend
+\node[inp, minimum width=1.4cm,minimum height=0.40cm,font=\tiny]
+  (lg1) at (3.0,0) {Input};
+\node[enc, minimum width=1.4cm,minimum height=0.40cm,font=\tiny,right=0.25cm of lg1]
+  (lg2) {Encoder};
+\node[dec, minimum width=1.4cm,minimum height=0.40cm,font=\tiny,right=0.25cm of lg2]
+  (lg3) {Decoder};
+\node[head,minimum width=1.4cm,minimum height=0.40cm,font=\tiny,right=0.25cm of lg3]
+  (lg4) {Head};
+\node[font=\tiny,right=0.5cm of lg4,deepblue] {--- skip};
 
 \end{tikzpicture}
-\caption{DeforestNet U-Net + ResNet-34 architecture. Skip connections (dashed blue)
-         preserve spatial detail. Input: 11$\times$256$\times$256; Output:
-         6$\times$256$\times$256 per-pixel class probabilities.}
+\caption{DeforestNet U-Net + ResNet-34 architecture. Dashed blue arrows are
+         skip connections that concatenate encoder feature maps into decoder
+         blocks, preserving spatial detail at each resolution level. Input
+         tensor: $11{\times}256{\times}256$; output:
+         $6{\times}256{\times}256$ per-pixel class logits.}
 \label{fig:architecture}
-\end{figure}
+\end{figure*}
 
 % ============================================================
 \section{Training Methodology}
@@ -494,75 +510,74 @@ Figure~\ref{fig:architecture} illustrates the full model data flow.
 \subsection{Dataset}
 
 We generated a synthetic 2,800-sample dataset of spatially realistic 11-band
-$256 \times 256$ tiles using procedurally generated spectral signatures per class
-(Section~\ref{sec:data}). The split is 2,000 / 400 / 400 (train / val / test).
-Synthetic generation enables controlled study of class distribution and band
-contribution without dependence on licensed satellite archives during development.
+$256{\times}256$ tiles using procedurally generated spectral signatures per class.
+The train/val/test split is 2,000 / 400 / 400. Synthetic generation enables
+controlled study of class distribution and band contribution without dependence
+on licensed satellite archives during development.
 
 \subsection{Class Imbalance and Weighting}
 
-Forest typically covers 60--75\% of pixels, while Infrastructure and Mining are
-rare ($<$3\%). We compute inverse-frequency class weights from the training set:
+Forest typically covers 60--75\% of pixels while Infrastructure and Mining are
+rare ($<$3\%). Inverse-frequency class weights are computed as:
 
 \begin{equation}
   w_c = \frac{N_{\text{total}}}{C \cdot N_c}
   \label{eq:classweights}
 \end{equation}
 
-\noindent yielding weights $\mathbf{w} = [0.04, 0.65, 0.99, 1.56, 0.74, 2.02]$
-for [Forest, Logging, Mining, Agriculture, Fire, Infrastructure] respectively.
-The high Infrastructure weight (2.02) penalises misclassification of the rarest class.
+\noindent yielding $\mathbf{w}{=}[0.04,\,0.65,\,0.99,\,1.56,\,0.74,\,2.02]$
+for [Forest, Logging, Mining, Agriculture, Fire, Infrastructure].
 
 \subsection{Combined Loss Function}
 
-A single loss term is insufficient for multi-class imbalanced segmentation. We
-combine three complementary loss functions:
-
 \begin{equation}
-  \mathcal{L} = 0.5 \cdot \mathcal{L}_{\text{CE}} \;+\; 0.3 \cdot \mathcal{L}_{\text{Dice}} \;+\; 0.2 \cdot \mathcal{L}_{\text{Focal}}
+  \mathcal{L} = 0.5\,\mathcal{L}_{\text{CE}} + 0.3\,\mathcal{L}_{\text{Dice}}
+                + 0.2\,\mathcal{L}_{\text{Focal}}
   \label{eq:loss}
 \end{equation}
 
-\noindent where:
 \begin{align}
-  \mathcal{L}_{\text{CE}}    &= -\sum_c w_c \cdot y_c \log(\hat{y}_c) \label{eq:ce}\\
-  \mathcal{L}_{\text{Dice}}  &= 1 - \frac{2\sum_c |\hat{y}_c \cap y_c|}{\sum_c (|\hat{y}_c| + |y_c|)} \label{eq:dice}\\
-  \mathcal{L}_{\text{Focal}} &= -\sum_c w_c (1-\hat{y}_c)^\gamma y_c \log(\hat{y}_c) \label{eq:focal}
+  \mathcal{L}_{\text{CE}}    &= -\sum_c w_c\,y_c\log\hat{y}_c
+  \label{eq:ce}\\[3pt]
+  \mathcal{L}_{\text{Dice}}  &= 1 - \frac{2\sum_c |\hat{y}_c \cap y_c|}
+                                         {\sum_c (|\hat{y}_c|+|y_c|)}
+  \label{eq:dice}\\[3pt]
+  \mathcal{L}_{\text{Focal}} &= -\sum_c w_c\,(1-\hat{y}_c)^{\gamma}\,y_c\log\hat{y}_c
+  \label{eq:focal}
 \end{align}
 
-with $\gamma = 2.0$ for the Focal loss. The Dice term directly optimises the IoU
-metric used for evaluation; the Focal term down-weights confident easy pixels and
-emphasises rare hard-to-classify regions.
+with $\gamma{=}2.0$. The Dice term directly optimises the IoU metric; the Focal
+term emphasises rare hard-to-classify regions.
 
 \subsection{Optimiser and Schedule}
 
-\begin{table}[h]
+\begin{table}[!t]
   \caption{Training Hyperparameters}
   \label{tab:hyperparams}
   \centering
+  \small
   \begin{tabular}{l l}
     \toprule
     \textbf{Hyperparameter} & \textbf{Value} \\
     \midrule
     Optimiser         & AdamW \\
-    Learning Rate     & $10^{-3}$ \\
-    Weight Decay      & $10^{-4}$ \\
+    Learning Rate     & $1 \times 10^{-3}$ \\
+    Weight Decay      & $1 \times 10^{-4}$ \\
     Batch Size        & 4 \\
     Max Epochs        & 10 \\
-    LR Scheduler      & ReduceLROnPlateau (patience=5, factor=0.5) \\
+    LR Scheduler      & ReduceLROnPlateau (patience=5) \\
     Gradient Clipping & max\_norm = 1.0 \\
-    Early Stopping    & patience = 10 (val mean IoU) \\
+    Early Stopping    & patience = 10 (val IoU) \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \subsection{Data Augmentation}
 
-To improve generalisation, we apply on-the-fly spatial and radiometric
-augmentation: random horizontal and vertical flips, random $90^\circ$ rotation,
-random transpose, brightness jitter ($\pm 0.1$), contrast scaling ($\times$0.9--1.1),
-additive Gaussian noise ($\sigma = 0.02$), and random band dropout ($p=0.05$).
-All transforms are applied consistently to both image and mask tensors.
+On-the-fly augmentation includes: random horizontal/vertical flips, $90^\circ$
+rotation, brightness jitter ($\pm$0.1), contrast scaling ($\times$0.9--1.1),
+additive Gaussian noise ($\sigma{=}0.02$), and random band dropout ($p{=}0.05$).
+All transforms are applied consistently to image and mask tensors.
 
 % ============================================================
 \section{Experimental Results}
@@ -571,63 +586,63 @@ All transforms are applied consistently to both image and mask tensors.
 
 \subsection{Training Convergence}
 
-Training converged from an initial loss of 0.4479 to a final loss of 0.0377 over
-10 epochs (total wall-clock time: 2669.9~s on CPU). Validation loss reached a
-minimum of 0.0297 at the best checkpoint. The model transitioned from 84.0\% to
-99.6\% overall accuracy, and mean IoU improved from 71.1\% to 98.4\%. Figure~\ref{fig:training_curves} summarises convergence.
+Training converged from loss 0.4479 to 0.0377 over 10 epochs (wall-clock:
+2669.9\,s on CPU). Validation loss reached minimum 0.0297 at the best
+checkpoint. Overall accuracy improved from 84.0\% to 99.6\%; mean IoU from
+71.1\% to 98.4\%. Figure~\ref{fig:training_curves} shows convergence.
 
-% ---- Training Curves (PGFPlots) ----
-\begin{figure}[h]
+\begin{figure}[!t]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-  width=8.2cm, height=4.5cm,
+  width=\linewidth,
+  height=5.5cm,
   xlabel={Epoch},
   ylabel={Value},
   xmin=0.5, xmax=10.5,
-  ymin=0, ymax=1.05,
+  ymin=0,   ymax=1.10,
   xtick={1,2,3,4,5,6,7,8,9,10},
   ytick={0,0.2,0.4,0.6,0.8,1.0},
-  legend style={font=\scriptsize, at={(0.98,0.3)}, anchor=east},
-  grid=both, grid style={line width=0.3pt, draw=gray!30},
+  legend pos=south east,
+  legend style={font=\tiny,fill=white,fill opacity=0.92,draw opacity=1,
+                row sep=1pt},
+  grid=both,
+  grid style={line width=0.3pt,draw=gray!30},
   tick label style={font=\scriptsize},
   label style={font=\scriptsize},
-  title style={font=\scriptsize\bfseries},
-  title={Training \& Validation Convergence}
+  title={Training and Validation Convergence},
+  title style={font=\small\bfseries},
 ]
-% Val Accuracy
-\addplot[color=deepblue, mark=*, thick, mark size=1.5pt]
-  coordinates {(1,0.840)(2,0.912)(3,0.948)(4,0.965)(5,0.972)(6,0.980)(7,0.985)(8,0.991)(9,0.994)(10,0.9957)};
+\addplot[deepblue,  mark=*,        thick,mark size=1.5pt]
+  coordinates{(1,.840)(2,.912)(3,.948)(4,.965)(5,.972)
+              (6,.980)(7,.985)(8,.991)(9,.994)(10,.996)};
 \addlegendentry{Val Accuracy}
 
-% Val IoU
-\addplot[color=opticalgreen, mark=square*, thick, mark size=1.5pt]
-  coordinates {(1,0.711)(2,0.802)(3,0.855)(4,0.896)(5,0.922)(6,0.941)(7,0.956)(8,0.966)(9,0.974)(10,0.9716)};
+\addplot[optgreen,  mark=square*,  thick,mark size=1.5pt]
+  coordinates{(1,.711)(2,.802)(3,.855)(4,.896)(5,.922)
+              (6,.941)(7,.956)(8,.966)(9,.974)(10,.971)};
 \addlegendentry{Val Mean IoU}
 
-% Train Loss (scaled to 0-1)
-\addplot[color=firered, mark=triangle*, dashed, thick, mark size=1.5pt]
-  coordinates {(1,0.448)(2,0.360)(3,0.283)(4,0.215)(5,0.174)(6,0.143)(7,0.108)(8,0.078)(9,0.055)(10,0.038)};
+\addplot[firered,   mark=triangle*, dashed,thick,mark size=1.5pt]
+  coordinates{(1,.448)(2,.360)(3,.283)(4,.215)(5,.174)
+              (6,.143)(7,.108)(8,.078)(9,.055)(10,.038)};
 \addlegendentry{Train Loss}
 
-% Val Loss
-\addplot[color=darkorange, mark=diamond*, dashed, thick, mark size=1.5pt]
-  coordinates {(1,0.514)(2,0.402)(3,0.308)(4,0.238)(5,0.188)(6,0.145)(7,0.107)(8,0.074)(9,0.051)(10,0.033)};
+\addplot[derorange, mark=diamond*,  dashed,thick,mark size=1.5pt]
+  coordinates{(1,.514)(2,.402)(3,.308)(4,.238)(5,.188)
+              (6,.145)(7,.107)(8,.074)(9,.051)(10,.033)};
 \addlegendentry{Val Loss}
-
 \end{axis}
 \end{tikzpicture}
-\caption{Training convergence over 10 epochs. Val accuracy reaches 99.57\%;
-         both loss curves monotonically decrease with no overfitting.}
+\caption{Training convergence over 10 epochs. Validation accuracy reaches
+         99.57\%; both loss curves decrease monotonically with no overfitting.}
 \label{fig:training_curves}
 \end{figure}
 
 \subsection{Overall Performance}
 
-Table~\ref{tab:overall} reports the final test-set performance:
-
-\begin{table}[h]
-  \caption{Overall Test-Set Performance (Best Checkpoint, Epoch 6)}
+\begin{table}[!t]
+  \caption{Overall Test-Set Performance (Best Checkpoint, Epoch~6)}
   \label{tab:overall}
   \centering
   \begin{tabular}{l c}
@@ -641,94 +656,90 @@ Table~\ref{tab:overall} reports the final test-set performance:
     Mean Recall       & 99.48\% \\
     Mean F1           & 98.49\% \\
     \midrule
-    Best Val Loss     & 0.0297 \\
-    Training Time     & 2669.9 s (CPU) \\
+    Best Val Loss     & 0.0297  \\
+    Training Time     & 2669.9\,s (CPU) \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \subsection{Per-Class Performance}
 
-Table~\ref{tab:perclass} details IoU, Dice, Precision, Recall and F1 for all six classes:
-
-\begin{table}[h]
-  \caption{Per-Class Segmentation Performance on Test Set}
+\begin{table}[!t]
+  \caption{Per-Class Segmentation Performance on Test Set (\%)}
   \label{tab:perclass}
   \centering
   \small
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabular}{l c c c c c}
     \toprule
-    \textbf{Class} & \textbf{IoU} & \textbf{Dice} & \textbf{Prec.} & \textbf{Rec.} & \textbf{F1} \\
+    \textbf{Class} & \textbf{IoU} & \textbf{Dice} & \textbf{Prec.}
+                   & \textbf{Rec.} & \textbf{F1} \\
     \midrule
-    \rowcolor{forestgreen!15}
-    Forest         & 99.50 & 99.75 & 99.91 & 99.59 & 99.75 \\
-    \rowcolor{logbrown!15}
-    Logging        & 99.38 & 99.69 & 99.43 & 99.95 & 99.69 \\
-    \rowcolor{minepurple!15}
-    Mining         & 99.50 & 99.75 & 99.63 & 99.87 & 99.75 \\
-    \rowcolor{agrigold!15}
-    Agriculture    & 89.36 & 94.38 & 90.61 & 98.47 & 94.38 \\
-    \rowcolor{firered!15}
-    Fire           & 98.38 & 99.18 & 99.10 & 99.26 & 99.18 \\
-    \rowcolor{infragray!15}
-    Infrastructure & 96.39 & 98.16 & 96.62 & 99.75 & 98.16 \\
+    \rowcolor{rowforest}
+    Forest        & 99.50 & 99.75 & 99.91 & 99.59 & 99.75 \\
+    \rowcolor{rowlog}
+    Logging       & 99.38 & 99.69 & 99.43 & 99.95 & 99.69 \\
+    \rowcolor{rowmine}
+    Mining        & 99.50 & 99.75 & 99.63 & 99.87 & 99.75 \\
+    \rowcolor{rowagri}
+    Agriculture   & 89.36 & 94.38 & 90.61 & 98.47 & 94.38 \\
+    \rowcolor{rowfire}
+    Fire          & 98.38 & 99.18 & 99.10 & 99.26 & 99.18 \\
+    \rowcolor{rowinfra}
+    Infrastructure& 96.39 & 98.16 & 96.62 & 99.75 & 98.16 \\
     \midrule
-    \textbf{Mean}  & \textbf{97.08} & \textbf{98.49} & \textbf{97.55} & \textbf{99.48} & \textbf{98.49} \\
+    \textbf{Mean} & \textbf{97.08} & \textbf{98.49} & \textbf{97.55}
+                  & \textbf{99.48} & \textbf{98.49} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Agriculture achieves the lowest IoU (89.36\%) among the six classes, attributable
-to its spectral similarity with recovering secondary forest (both exhibit moderate
-NDVI 0.3--0.5). This is a known challenge in tropical land-cover mapping and is a
-primary target for improvement through temporal multi-date stacking in future work.
+Agriculture achieves the lowest IoU (89.36\%) due to spectral similarity with
+recovering secondary forest (both exhibit NDVI 0.3--0.5). This is the primary
+target for improvement via temporal multi-date stacking in future work.
 
-\subsection{Per-Class IoU Bar Chart}
+\subsection{Per-Class IoU Comparison}
 
-Figure~\ref{fig:iou_bar} visualises per-class IoU:
-
-\begin{figure}[h]
+\begin{figure}[!t]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
   xbar,
-  width=7.8cm, height=4.6cm,
+  width=\linewidth,
+  height=5.5cm,
   xlabel={IoU (\%)},
-  xmin=85, xmax=101,
-  symbolic y coords={Infrastructure, Fire, Agriculture, Mining, Logging, Forest},
+  xmin=85, xmax=102,
+  enlarge y limits=0.18,
+  symbolic y coords={Infrastructure,Fire,Agriculture,Mining,Logging,Forest},
   ytick=data,
   nodes near coords,
-  nodes near coords align={horizontal},
+  nodes near coords align=horizontal,
   nodes near coords style={font=\tiny},
-  bar width=0.35cm,
+  bar width=0.40cm,
   tick label style={font=\scriptsize},
   label style={font=\scriptsize},
-  title={Per-Class IoU on Test Set},
-  title style={font=\scriptsize\bfseries},
-  grid=x, grid style={line width=0.3pt, draw=gray!25},
+  title={Per-Class IoU on Test Set (\%)},
+  title style={font=\small\bfseries},
+  grid=x,
+  grid style={line width=0.3pt,draw=gray!25},
 ]
-\addplot[
-  fill={infragray!60}, draw=infragray
-] coordinates {(96.39,Infrastructure)};
-\addplot[
-  fill={firered!60}, draw=firered
-] coordinates {(98.38,Fire)};
-\addplot[
-  fill={agrigold!70}, draw=agrigold!80!black
-] coordinates {(89.36,Agriculture)};
-\addplot[
-  fill={minepurple!50}, draw=minepurple
-] coordinates {(99.50,Mining)};
-\addplot[
-  fill={logbrown!60}, draw=logbrown
-] coordinates {(99.38,Logging)};
-\addplot[
-  fill={forestgreen!60}, draw=forestgreen
-] coordinates {(99.50,Forest)};
+\addplot[fill=infragray!55,draw=infragray!80]
+  coordinates {(96.39,Infrastructure)};
+\addplot[fill=firered!55,  draw=firered!80]
+  coordinates {(98.38,Fire)};
+\addplot[fill=agrigold!70, draw=agrigold!80]
+  coordinates {(89.36,Agriculture)};
+\addplot[fill=minepurple!45,draw=minepurple!70]
+  coordinates {(99.50,Mining)};
+\addplot[fill=logbrown!55, draw=logbrown!80]
+  coordinates {(99.38,Logging)};
+\addplot[fill=forestgreen!55,draw=forestgreen!80]
+  coordinates {(99.50,Forest)};
 \end{axis}
 \end{tikzpicture}
-\caption{Per-class IoU (\%). Agriculture (89.36\%) is the lowest due to spectral
-         confusion with secondary forest; all other classes exceed 96\%.}
+\caption{Per-class IoU (\%). Agriculture (89.36\%) is the lowest due to
+         spectral confusion with secondary forest; all other classes exceed
+         96\%.}
 \label{fig:iou_bar}
 \end{figure}
 
@@ -737,146 +748,152 @@ Figure~\ref{fig:iou_bar} visualises per-class IoU:
 \label{sec:system}
 % ============================================================
 
-\subsection{End-to-End Pipeline Overview}
+\subsection{End-to-End Pipeline}
 
-DeforestNet is deployed as a production-ready monolithic Flask application with
-six REST API blueprints and a single-page interactive web dashboard. Figure~\ref{fig:system}
-illustrates the complete operational pipeline.
+DeforestNet is deployed as a production Flask application with six REST API
+blueprints and a single-page web dashboard. Figure~\ref{fig:system} illustrates
+the full operational pipeline across two columns.
 
-\begin{figure}[h]
+\begin{figure*}[!t]
 \centering
 \begin{tikzpicture}[
-  scale=0.80,
-  node distance=0.55cm,
-  block/.style={draw, rounded corners=3pt, minimum width=2.1cm, minimum height=0.55cm,
-                font=\scriptsize\bfseries, text centered, fill=blockgray, draw=gray!60},
-  arrow/.style={->, thick, >=Stealth, black!70},
-  tier/.style={draw=none, font=\tiny\bfseries}
+  every node/.style={font=\small},
+  block/.style={draw,rounded corners=3pt,minimum width=2.9cm,
+                minimum height=0.68cm,font=\scriptsize\bfseries,
+                align=center,fill=blockgray,draw=gray!55},
+  flow/.style={->,thick,>=Stealth,black!65},
+  lbl/.style={font=\footnotesize\bfseries}
 ]
 
-% Column 1: Data
-\node[block, fill=sarblue!20, draw=sarblue!50] (sat) at (0,0) {Sentinel-1/2\\Satellite Data};
-\node[block, fill=deepblue!15, draw=deepblue!50, below=of sat] (pre) {Preprocessing\\(11-band stack)};
-\node[block, fill=opticalgreen!20, draw=opticalgreen!50, below=of pre] (inf) {U-Net Inference\\Engine};
-\node[block, fill=agrigold!20, draw=agrigold!60, below=of inf] (alert) {Alert Generator\\(6 classes)};
+% Top row: ML pipeline (left to right)
+\node[block,fill=sarblue!18,draw=sarblue!55]     (sat)  at (0.0,0)    {Sentinel-1/2\\Satellite Data};
+\node[block,fill=deepblue!15,draw=deepblue!50]   (pre)  at (3.6,0)    {Preprocessing\\(11-band stack)};
+\node[block,fill=optgreen!18,draw=optgreen!55]   (inf)  at (7.2,0)    {U-Net Inference\\Engine};
+\node[block,fill=agrigold!25,draw=agrigold!60]   (alg)  at (10.8,0)   {Alert Generator\\(6 classes)};
 
-% Column 2: Services
-\node[block, fill=logbrown!15, draw=logbrown!50] (db) at (3.2,0) {SQLite\\Database};
-\node[block, fill=minepurple!15, draw=minepurple!50, below=of db] (api) {Flask REST API\\(6 blueprints)};
-\node[block, fill=infragray!15, draw=infragray!50, below=of api] (dash) {Web Dashboard\\(HTML/JS/CSS)};
-\node[block, fill=firered!15, draw=firered!50, below=of dash] (notif) {3-Tier Notify\\FCM/TG/Email};
+% Bottom row: Platform services
+\node[block,fill=logbrown!15, draw=logbrown!50]   (db)  at (0.0,-2.4) {SQLite\\Database};
+\node[block,fill=minepurple!15,draw=minepurple!50](api) at (3.6,-2.4) {Flask REST API\\(6 Blueprints)};
+\node[block,fill=infragray!15, draw=infragray!50]  (dash)at (7.2,-2.4) {Web Dashboard\\(HTML / JS)};
+\node[block,fill=firered!15,   draw=firered!50]    (ntf) at (10.8,-2.4){3-Tier Notify\\FCM / TG / Email};
 
-% Arrows
-\draw[arrow] (sat)--(pre);
-\draw[arrow] (pre)--(inf);
-\draw[arrow] (inf)--(alert);
-\draw[arrow] (alert.east) -- ++(0.4,0) |- (db.west);
-\draw[arrow] (db)--(api);
-\draw[arrow] (api)--(dash);
-\draw[arrow] (api.east) -- ++(0.35,0) |- (notif.east);
-\draw[arrow] (alert.east) -- ++(0.4,0) |- (notif.west);
+% Top-row horizontal flow
+\draw[flow] (sat)--(pre);
+\draw[flow] (pre)--(inf);
+\draw[flow] (inf)--(alg);
 
-% Column labels
-\node[tier, deepblue, above=0.1cm of sat] {Sensing \& ML};
-\node[tier, logbrown!80!black, above=0.1cm of db] {Platform};
+% Alert -> DB
+\draw[flow] (alg.south) -- ++(0,-0.65) -| (db.south);
+
+% Alert -> Notification
+\draw[flow] (alg)--(ntf);
+
+% Bottom-row horizontal flow
+\draw[flow] (db)--(api);
+\draw[flow] (api)--(dash);
+
+% Labels above top row
+\node[lbl,deepblue]            at (0.0, 0.75)  {Data Ingestion};
+\node[lbl,deepblue]            at (3.6, 0.75)  {Preprocessing};
+\node[lbl,optgreen!70!black]   at (7.2, 0.75)  {ML Inference};
+\node[lbl,agrigold!70!black]   at (10.8,0.75)  {Alert Engine};
+
+% Labels below bottom row
+\node[lbl,logbrown!70!black]   at (0.0,-3.20)  {Database};
+\node[lbl,minepurple!60!black] at (3.6,-3.20)  {REST API};
+\node[lbl,infragray!60!black]  at (7.2,-3.20)  {Dashboard};
+\node[lbl,firered!60!black]    at (10.8,-3.20) {Notifications};
 
 \end{tikzpicture}
-\caption{End-to-end DeforestNet operational pipeline: satellite ingestion through
-         automated alert delivery across three notification tiers.}
+\caption{End-to-end DeforestNet operational pipeline. Satellite data flows
+         left-to-right through preprocessing, ML inference, and alert
+         generation (top). Alerts are stored in SQLite and served via the
+         Flask REST API to the dashboard and three-tier notification system
+         (bottom).}
 \label{fig:system}
-\end{figure}
+\end{figure*}
 
 \subsection{REST API (Flask Blueprints)}
 
-The API server (launched via \texttt{run\_api.py}) exposes 37 endpoints across
-six blueprints with CORS enabled for browser-client communication:
-
-\begin{table}[h]
-  \caption{API Blueprint Summary}
+\begin{table}[!t]
+  \caption{API Blueprint Summary (37 Endpoints Total)}
   \label{tab:api}
   \centering
   \small
-  \begin{tabular}{l l p{3.2cm}}
+  \begin{tabular}{l l p{2.6cm}}
     \toprule
     \textbf{Blueprint} & \textbf{Prefix} & \textbf{Key Endpoints} \\
     \midrule
-    Predictions  & \texttt{/api/predictions}  & \texttt{/analyze}, \texttt{/demo}, \texttt{/recent} \\
-    Alerts       & \texttt{/api/alerts}        & CRUD, \texttt{/active}, \texttt{/statistics} \\
-    Officers     & \texttt{/api/officers}      & CRUD, \texttt{/by-region} \\
-    Notifications& \texttt{/api/notifications} & \texttt{/send}, \texttt{/status}, \texttt{/history} \\
-    Dashboard    & \texttt{/api/dashboard}     & \texttt{/stats}, \texttt{/timeline}, \texttt{/regions} \\
-    Monitoring   & \texttt{/api/monitoring}    & \texttt{/start}, \texttt{/stop}, \texttt{/status} \\
+    Predictions   & \texttt{/api/predictions}  & \texttt{/analyze}, \texttt{/demo} \\
+    Alerts        & \texttt{/api/alerts}        & CRUD, \texttt{/active} \\
+    Officers      & \texttt{/api/officers}      & CRUD, \texttt{/by-region} \\
+    Notifications & \texttt{/api/notifications} & \texttt{/send}, \texttt{/status} \\
+    Dashboard     & \texttt{/api/dashboard}     & \texttt{/stats}, \texttt{/timeline} \\
+    Monitoring    & \texttt{/api/monitoring}    & \texttt{/start}, \texttt{/stop} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \subsection{Three-Tier Notification System}
 
-Upon generating a deforestation alert of severity \emph{High} or \emph{Critical},
-the notification manager dispatches concurrently through three independent tiers:
+Upon generating a \emph{High} or \emph{Critical} alert, notifications are
+dispatched concurrently through three tiers:
 
 \begin{enumerate}
-  \item \textbf{Firebase FCM} (Tier 1 — Push): Sub-second mobile push
-        notification to assigned field officers. Operates via Firebase Admin SDK.
-        Free tier supports 500k messages/month.
-  \item \textbf{Telegram Bot} (Tier 2 — Instant Message): HTML-formatted message
-        with coordinates, severity, class map thumbnail, and Leaflet map link.
-        Free, unlimited messages.
-  \item \textbf{Gmail SMTP} (Tier 3 — Email): Full HTML report with Grad-CAM
-        overlays, per-class confidence table, and GPS coordinates. 500 emails/day
-        on free tier. Automatic failover if Tier 1 or Tier 2 is unavailable.
+  \item \textbf{Firebase FCM} (Tier~1): Sub-second mobile push notification to
+        field officers. Free tier: 500k messages/month.
+  \item \textbf{Telegram Bot} (Tier~2): HTML-formatted message with coordinates,
+        severity, class thumbnail, and map link. Unlimited and free.
+  \item \textbf{Gmail SMTP} (Tier~3): Full HTML report with Grad-CAM overlays
+        and GPS coordinates. 500 emails/day free; automatic failover.
 \end{enumerate}
 
 \subsection{Grad-CAM Explainability}
 
-Gradient-weighted Class Activation Maps (Grad-CAM) \cite{selvaraju2017gradcam}
-are computed at the final decoder convolutional layer for each predicted class.
-Heatmaps are overlaid on the NIR false-colour composite and emailed with each
-alert, providing human-interpretable evidence of the model's spatial reasoning.
-For each class $c$:
+Grad-CAM~\cite{selvaraju2017gradcam} attribution maps are computed at the final
+decoder convolutional layer. For each class $c$:
 
 \begin{equation}
   \alpha_k^c = \frac{1}{Z}\sum_{i,j} \frac{\partial y^c}{\partial A^k_{ij}}
+  \label{eq:gradcam_weights}
 \end{equation}
 
 \begin{equation}
-  L_{\text{Grad-CAM}}^c = \text{ReLU}\!\left(\sum_k \alpha_k^c A^k\right)
+  L_{\text{Grad-CAM}}^c = \mathrm{ReLU}\!\left(\sum_k \alpha_k^c A^k\right)
+  \label{eq:gradcam_map}
 \end{equation}
 
-\noindent where $A^k$ denotes the $k$-th feature map activation.
+\noindent where $A^k$ denotes the $k$-th feature map activation. Heatmaps are
+overlaid on the NIR false-colour composite and included in email alerts.
 
 \subsection{Automated Monitoring Scheduler}
 
-The \texttt{AutoMonitor} module runs a background thread that triggers the
-inference pipeline on new satellite tile acquisitions at a user-defined interval
-(default: every 120 seconds in demo mode; configurable via the dashboard).
-Alerts are persisted to SQLite and notification dispatched without manual
-intervention.
+The \texttt{AutoMonitor} module runs a background thread triggering inference
+on new tile acquisitions at a configurable interval (default: 120\,s in demo
+mode). Alerts are persisted to SQLite and notifications dispatched without
+manual intervention.
 
 % ============================================================
 \section{Comparison with Existing Systems}
 \label{sec:comparison}
 % ============================================================
 
-Table~\ref{tab:comparison} benchmarks DeforestNet against leading operational
-forest monitoring systems:
-
-\begin{table}[h]
-  \caption{Comparison with Existing Deforestation Monitoring Systems}
+\begin{table}[!t]
+  \caption{Comparison with Existing Forest Monitoring Systems}
   \label{tab:comparison}
   \centering
   \small
   \begin{tabular}{l c c c c}
     \toprule
-    \textbf{System} & \textbf{Classes} & \textbf{SAR} & \textbf{Real-time} & \textbf{Free} \\
+    \textbf{System} & \textbf{Classes} & \textbf{SAR} & \textbf{RT Alert} & \textbf{Free} \\
     \midrule
-    PRODES (INPE) \cite{prodes}            & 2  & \texttimes & \texttimes & \checkmark \\
-    Global Forest Watch \cite{gfw}         & 2  & \texttimes & \checkmark & \checkmark \\
-    JAXA PALSAR-2 \cite{shimada2014newglobal} & 2 & \checkmark & \texttimes & \checkmark \\
-    Planet NICFI \cite{planet}             & 2  & \texttimes & \checkmark & Limited   \\
-    GLAD Alerts \cite{glad}                & 2  & \texttimes & \checkmark & \checkmark \\
+    PRODES~\cite{prodes}                       & 2 & \texttimes & \texttimes & \checkmark \\
+    Global Forest Watch~\cite{gfw}             & 2 & \texttimes & \checkmark & \checkmark \\
+    JAXA PALSAR-2~\cite{shimada2014newglobal}  & 2 & \checkmark & \texttimes & \checkmark \\
+    Planet NICFI~\cite{planet}                 & 2 & \texttimes & \checkmark & Limited \\
+    GLAD Alerts~\cite{glad}                    & 2 & \texttimes & \checkmark & \checkmark \\
     \midrule
-    \textbf{DeforestNet (Ours)}            & \textbf{6} & \checkmark & \checkmark & \checkmark \\
+    \textbf{DeforestNet (Ours)} & \textbf{6} & \checkmark & \checkmark & \checkmark \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -892,158 +909,140 @@ cause-specific six-class segmentation, (ii) SAR-optical band fusion, and
 
 \subsection{Strengths}
 
-The 11-band fusion architecture enables all-weather monitoring by incorporating
-SAR bands that are unaffected by cloud cover. The combined CE+Dice+Focal loss
-effectively handles the severe class imbalance inherent in tropical forest scenes,
-evidenced by the strong Infrastructure IoU (96.4\%) despite its low natural
-prevalence. The operational system requires zero data-acquisition costs, operating
-entirely on free ESA Copernicus data.
+The 11-band fusion architecture enables all-weather monitoring through SAR bands
+unaffected by cloud cover. The combined CE+Dice+Focal loss effectively handles
+severe class imbalance, evidenced by the strong Infrastructure IoU (96.4\%) despite
+low natural prevalence. Operating entirely on free ESA Copernicus data keeps
+data-acquisition cost at zero.
 
-\subsection{Limitations \& Future Work}
+\subsection{Limitations and Future Work}
 
-\textbf{Synthetic data:} While spectral signatures are physically motivated,
-the training corpus is entirely synthetic. Production performance with real
-Sentinel tiles will differ; transfer learning from a synthetic pre-trained model
-to real data via domain adaptation \cite{ganin2016domain} is planned.
+\textbf{Synthetic data:} The training corpus is entirely synthetic.
+Domain-adaptive transfer learning~\cite{ganin2016domain} to real Sentinel tiles
+is the top engineering priority.
 
-\textbf{Temporal stacking:} Single-date inference cannot distinguish active burning
-from recent burn scars, or active logging from a 3-month-old clear-cut. Adding
-multi-temporal inputs (time-series stacking) is the highest-priority extension.
+\textbf{Temporal stacking:} Single-date inference cannot distinguish active
+burning from burn scars or active from recent logging. Multi-temporal stacking
+is the highest-priority research extension.
 
-\textbf{Agriculture ambiguity:} Agriculture (IoU = 89.36\%) confuses with secondary
-regrowth forest. Adding SWIR bands (B11, B12) and multi-date NDVI trajectories
-will improve discrimination.
+\textbf{Agriculture ambiguity:} Agriculture (IoU 89.36\%) confuses with secondary
+regrowth forest (both at NDVI 0.3--0.5). SWIR bands (B11, B12) and multi-date
+NDVI trajectories will improve discrimination.
 
-\textbf{Scale:} The current 256$\times$256 tile size corresponds to approximately
-$2.56 \times 2.56$~km at 10~m resolution. Larger tiles or sliding-window inference
-will be required for landscape-scale (1 million ha+) monitoring.
+\textbf{Tile scale:} The $256{\times}256$ tile covers $2.56{\times}2.56$\,km at
+10\,m resolution. Sliding-window inference is required for landscape-scale
+monitoring.
 
 % ============================================================
 \section{Conclusion}
 \label{sec:conclusion}
 % ============================================================
 
-We have presented \textbf{DeforestNet}, a complete end-to-end satellite intelligence
+We presented \textbf{DeforestNet}, a complete end-to-end satellite intelligence
 platform for cause-specific deforestation monitoring. By fusing 11 spectral and
-radar bands from the free Sentinel-1 and Sentinel-2 missions, and training a
-24.4M-parameter U-Net with ResNet-34 encoder on a balanced synthetic dataset, we
-achieve \textbf{99.58\% overall accuracy} and \textbf{97.08\% mean IoU} across
-six deforestation cause classes. The accompanying operational system---comprising
-a Flask REST API, automated monitoring scheduler, three-tier notification pipeline,
-interactive web dashboard, and Grad-CAM explainability---demonstrates that
-production-grade deforestation intelligence can be built entirely on open-source,
-zero-cost components. DeforestNet directly addresses the classification gap in
-current binary monitoring systems and is well-positioned to support compliance
-obligations under the incoming EU Deforestation Regulation.
+radar bands from the free Sentinel-1 and Sentinel-2 missions and training a
+24.4M-parameter U-Net + ResNet-34 on a balanced synthetic dataset, we achieve
+\textbf{99.58\% overall accuracy} and \textbf{97.08\% mean IoU} across six
+deforestation cause classes. The operational system---Flask REST API, automated
+monitoring scheduler, three-tier notification pipeline, interactive web dashboard,
+and Grad-CAM explainability---demonstrates that production-grade deforestation
+intelligence can be built entirely from open-source, zero-cost components.
+DeforestNet directly addresses the binary classification gap in current systems
+and is positioned to support EU Deforestation Regulation compliance obligations.
 
-Future work will focus on (1) fine-tuning on real Sentinel imagery via
-domain-adaptive transfer learning, (2) multi-temporal input stacking, (3) SWIR
-band integration to resolve Agriculture/secondary-forest ambiguity, and
-(4) containerised cloud-native deployment on Google Earth Engine.
+Future work: (1) domain-adaptive fine-tuning on real Sentinel imagery;
+(2) multi-temporal stacking; (3) SWIR band integration; (4) containerised
+deployment on Google Earth Engine.
 
-% ============================================================
-% Acknowledgements
 % ============================================================
 \section*{Acknowledgements}
 
 The author thanks the European Space Agency (ESA) for the open-access Copernicus
-Sentinel-1 and Sentinel-2 satellite data programmes, and the open-source
-communities behind PyTorch, Flask, and the TorchVision library.
+Sentinel-1 and Sentinel-2 data programmes, and the open-source communities behind
+PyTorch, Flask, and TorchVision.
 
-% ============================================================
-% References
 % ============================================================
 \begin{thebibliography}{00}
 
 \bibitem{pan2011large}
-Y.~Pan \textit{et al.}, ``A large and persistent carbon sink in the world's forests,''
-\textit{Science}, vol.~333, no.~6045, pp.~988--993, 2011.
+Y.~Pan \textit{et al.}, ``A large and persistent carbon sink in the world's
+forests,'' \textit{Science}, vol.~333, no.~6045, pp.~988--993, 2011.
 
 \bibitem{fao2020global}
 Food and Agriculture Organisation, ``Global Forest Resources Assessment 2020,''
-FAO, Rome, Tech. Rep., 2020. [Online]. Available: \url{https://www.fao.org/forest-resources-assessment}
+FAO, Rome, Tech.\ Rep., 2020.
 
 \bibitem{eudr2023}
 European Parliament, ``Regulation (EU) 2023/1115 on deforestation-free products,''
 \textit{Official Journal of the European Union}, June 2023.
 
 \bibitem{shimada2014newglobal}
-M.~Shimada \textit{et al.}, ``New global forest/non-forest maps from ALOS
-PALSAR data (2007--2010),''
-\textit{Remote Sensing of Environment}, vol.~155, pp.~13--31, 2014.
+M.~Shimada \textit{et al.}, ``New global forest/non-forest maps from ALOS PALSAR
+data (2007--2010),'' \textit{Remote Sensing of Environment}, vol.~155,
+pp.~13--31, 2014.
 
 \bibitem{asner2009highresolution}
 G.~P.~Asner \textit{et al.}, ``High-resolution forest carbon stocks and emissions
-in the Amazon,''
-\textit{Proceedings of the National Academy of Sciences}, vol.~107, no.~38,
-pp.~16738--16742, 2010.
+in the Amazon,'' \textit{Proc.\ National Academy of Sciences}, vol.~107,
+no.~38, pp.~16738--16742, 2010.
 
 \bibitem{long2015fully}
 J.~Long, E.~Shelhamer, and T.~Darrell, ``Fully convolutional networks for
-semantic segmentation,''
-in \textit{Proc. IEEE CVPR}, 2015, pp.~3431--3440.
+semantic segmentation,'' in \textit{Proc.\ IEEE CVPR}, 2015, pp.~3431--3440.
 
 \bibitem{badrinarayanan2017segnet}
 V.~Badrinarayanan, A.~Kendall, and R.~Cipolla, ``SegNet: A deep convolutional
-encoder-decoder architecture for image segmentation,''
-\textit{IEEE Trans. Pattern Anal. Mach. Intell.}, vol.~39, no.~12,
-pp.~2481--2495, 2017.
+encoder-decoder architecture for image segmentation,'' \textit{IEEE Trans.\
+Pattern Anal.\ Mach.\ Intell.}, vol.~39, no.~12, pp.~2481--2495, 2017.
 
 \bibitem{torres2021deforestation}
 D.~L.~Torres \textit{et al.}, ``Deforestation detection with fully convolutional
-networks in the Amazon from Landsat-8 and Sentinel-2 images,''
-\textit{Remote Sensing}, vol.~13, no.~1, p.~169, 2021.
+networks in the Amazon,'' \textit{Remote Sensing}, vol.~13, no.~1, p.~169, 2021.
 
 \bibitem{kussul2017deep}
-N.~Kussul \textit{et al.}, ``Deep learning classification of land cover and
-crop types using remote sensing data,''
-\textit{IEEE Geoscience and Remote Sensing Letters}, vol.~14, no.~5,
-pp.~778--782, 2017.
+N.~Kussul \textit{et al.}, ``Deep learning classification of land cover and crop
+types using remote sensing data,'' \textit{IEEE Geoscience and Remote Sensing
+Letters}, vol.~14, no.~5, pp.~778--782, 2017.
 
 \bibitem{rosen2021measuring}
 P.~A.~Rosen \textit{et al.}, ``Measuring and monitoring forest biomass using
-Sentinel-1 SAR data,''
-\textit{IEEE Transactions on Geoscience and Remote Sensing}, vol.~59, no.~9,
-pp.~7655--7670, 2021.
+Sentinel-1 SAR data,'' \textit{IEEE Trans.\ Geoscience and Remote Sensing},
+vol.~59, no.~9, pp.~7655--7670, 2021.
 
 \bibitem{ronneberger2015unet}
 O.~Ronneberger, P.~Fischer, and T.~Brox, ``U-Net: Convolutional networks for
-biomedical image segmentation,''
-in \textit{Proc. MICCAI}, Lecture Notes in Computer Science, vol.~9351,
+biomedical image segmentation,'' in \textit{Proc.\ MICCAI}, LNCS vol.~9351,
 Springer, 2015, pp.~234--241.
 
 \bibitem{he2016deep}
 K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image
-recognition,''
-in \textit{Proc. IEEE CVPR}, 2016, pp.~770--778.
+recognition,'' in \textit{Proc.\ IEEE CVPR}, 2016, pp.~770--778.
 
 \bibitem{chen2018encoderdecoder}
 L.-C.~Chen \textit{et al.}, ``Encoder-decoder with atrous separable convolution
-for semantic image segmentation,''
-in \textit{Proc. ECCV}, 2018, pp.~801--818.
+for semantic image segmentation,'' in \textit{Proc.\ ECCV}, 2018, pp.~801--818.
 
 \bibitem{silva2021mapping}
 F.~B.~Silva \textit{et al.}, ``Mapping deforestation causes using multi-source
-remote sensing data,''
-\textit{Forest Ecology and Management}, vol.~488, p.~118993, 2021.
+remote sensing data,'' \textit{Forest Ecology and Management}, vol.~488,
+p.~118993, 2021.
 
 \bibitem{selvaraju2017gradcam}
 R.~R.~Selvaraju \textit{et al.}, ``Grad-CAM: Visual explanations from deep
-networks via gradient-based localization,''
-in \textit{Proc. IEEE ICCV}, 2017, pp.~618--626.
+networks via gradient-based localization,'' in \textit{Proc.\ IEEE ICCV},
+2017, pp.~618--626.
 
 \bibitem{ganin2016domain}
 Y.~Ganin \textit{et al.}, ``Domain-adversarial training of neural networks,''
-\textit{Journal of Machine Learning Research}, vol.~17, no.~1, pp.~2096--2030,
-2016.
+\textit{J.\ Machine Learning Research}, vol.~17, no.~1, pp.~2096--2030, 2016.
 
 \bibitem{prodes}
-Instituto Nacional de Pesquisas Espaciais (INPE), ``PRODES Digital Programme,''
-2024. [Online]. Available: \url{http://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes}
+Instituto Nacional de Pesquisas Espaciais, ``PRODES Digital Programme,'' 2024.
+[Online]. Available: \url{http://www.obt.inpe.br/OBT/assuntos/programas/amazonia/prodes}
 
 \bibitem{gfw}
-Global Forest Watch, ``Hansen/UMD/Google/USGS/NASA Tree Cover Loss,''
-World Resources Institute, 2024. [Online]. Available: \url{https://www.globalforestwatch.org}
+Global Forest Watch, ``Hansen/UMD/Google/USGS/NASA Tree Cover Loss,'' 2024.
+[Online]. Available: \url{https://www.globalforestwatch.org}
 
 \bibitem{planet}
 Planet Labs, ``Planet NICFI Satellite Data Program,'' 2024.
@@ -1051,8 +1050,7 @@ Planet Labs, ``Planet NICFI Satellite Data Program,'' 2024.
 
 \bibitem{glad}
 M.~C.~Hansen \textit{et al.}, ``High-resolution global maps of 21st-century
-forest cover change,''
-\textit{Science}, vol.~342, no.~6160, pp.~850--853, 2013.
+forest cover change,'' \textit{Science}, vol.~342, no.~6160, pp.~850--853, 2013.
 
 \end{thebibliography}
 
